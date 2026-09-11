@@ -22,21 +22,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\sport complex\sport complex\Facility.cpp">
-      <Filter>Исходные файлы\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\sport complex\sport complex\main.cpp">
-      <Filter>Исходные файлы\source</Filter>
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="..\..\sport complex\sport complex\SportComplex.cpp">
-      <Filter>Исходные файлы\source</Filter>
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sport complex\sport complex\main.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\sport complex\sport complex\Facility.h">
-      <Filter>Исходные файлы\header</Filter>
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="..\..\sport complex\sport complex\SportComplex.h">
-      <Filter>Исходные файлы\header</Filter>
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
