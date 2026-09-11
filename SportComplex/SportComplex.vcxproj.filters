@@ -13,21 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Исходные файлы\header">
-      <UniqueIdentifier>{48d5184e-1d1e-44e6-b4b5-5b5008fc98ee}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Исходные файлы\source">
-      <UniqueIdentifier>{acf53c2a-cb27-40b7-802d-87ac6b11f427}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\sport complex\sport complex\Facility.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\sport complex\sport complex\main.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\sport complex\sport complex\SportComplex.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\sport complex\sport complex\main.cpp">
+    <ClCompile Include="header.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
