@@ -365,3 +365,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/SportComplex/SportComplex.vcxproj
+/SportComplex/SportComplex.vcxproj
+/SportComplex/SportComplex.vcxproj.filters
