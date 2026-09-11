@@ -22,7 +22,6 @@
     <ClCompile Include="..\..\sport complex\sport complex\Facility.cpp" />
     <ClCompile Include="..\..\sport complex\sport complex\main.cpp" />
     <ClCompile Include="..\..\sport complex\sport complex\SportComplex.cpp" />
-    <ClCompile Include="header.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\sport complex\sport complex\Facility.h" />

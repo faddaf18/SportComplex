@@ -13,27 +13,30 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Исходные файлы\header">
+      <UniqueIdentifier>{f341a68d-a7b6-4523-84a5-502e854e7f46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\source">
+      <UniqueIdentifier>{24cb606b-6d8f-4120-b119-cbfa28b7339d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\sport complex\sport complex\Facility.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\sport complex\sport complex\main.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\sport complex\sport complex\SportComplex.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="header.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\sport complex\sport complex\Facility.h">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\header</Filter>
     </ClInclude>
     <ClInclude Include="..\..\sport complex\sport complex\SportComplex.h">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
