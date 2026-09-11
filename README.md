@@ -14,4 +14,4 @@
 * **Язык:** C++ (стандарт C++17 и выше)
 * **Инструменты:** Сборка в Visual Studio, контроль версий Git.
 
-## Ссылка на [SonarCloud проекта](https://sonarcloud.io/project/overview?id=faddaf18_sport-complex)
+## Ссылка на [SonarCloud проекта](https://sonarcloud.io/project/overview?id=faddaf18_SportComplex)
