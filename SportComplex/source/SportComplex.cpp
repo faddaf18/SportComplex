@@ -1,20 +1,7 @@
-#pragma once
-#include <iostream>
-#include <string>
-#include <string_view>
-#include <array>
 #include "SportComplex.h"
-#include "Facility.h"
 
 void SportComplex::add_facility(const Facility& f) {
-    if (hallsCount < 10) {
-        halls.at(hallsCount) = f;
-        hallsCount++;
-        std::cout << "Объект успешно добавлен в комплекс!\n";
-    }
-    else {
-        std::cout << "Ошибка: В комплексе достигнут лимит залов (максимум 10)!\n";
-    }
+    *this += f; 
 }
 
 void SportComplex::show_all_short() const {
@@ -46,36 +33,10 @@ void SportComplex::create_and_add_facility() {
         return;
     }
 
-    std::string name;
-    std::string type;
-    int capacity = 0;
-
-    std::cin.ignore();
-    std::cout << "Введите название зала/площадки: ";
-    std::getline(std::cin, name);
-
-    std::cout << "Введите тип (например, Крытый / Открытый): ";
-    std::getline(std::cin, type);
-
-    std::cout << "Введите вместимость (человек): ";
-    std::cin >> capacity;
-
     Facility newFacility;
-    newFacility.init(name, type, capacity);
+    std::cin >> newFacility; 
 
-    std::cout << "Сколько видов спорта доступно в этом зале (от 1 до 3)? ";
-    int sCount = 0;
-    std::cin >> sCount;
-    std::cin.ignore();
-
-    for (int i = 0; i < sCount && i < 3; i++) {
-        std::string sport;
-        std::cout << "Введите вид спорта #" << (i + 1) << ": ";
-        std::getline(std::cin, sport);
-        newFacility.add_sport(sport);
-    }
-
-    add_facility(newFacility);
+    *this += newFacility;
 }
 
 void SportComplex::edit_facility_menu() {
@@ -149,4 +110,35 @@ void SportComplex::try_enroll() const {
     else if (index != 0) {
         std::cout << "Неверный номер зала!\n";
     }
+}
+
+SportComplex& SportComplex::operator+=(const Facility& f) {
+    if (hallsCount < 10) {
+        halls.at(hallsCount) = f;
+        hallsCount++;
+        std::cout << "Объект '" << f.get_name() << "' успешно добавлен в комплекс через оператор += !\n";
+    }
+    else {
+        std::cout << "Ошибка [operator+=]: В комплексе '" << complexName
+            << "' достигнут лимит залов (максимум 10)! Добавление невыполнимо.\n";
+    }
+    return *this;
+}
+
+SportComplex& SportComplex::operator--() {
+    if (hallsCount > 0) {
+        hallsCount--;
+        std::cout << "Последний зал удален из комплекса через оператор --. Осталось залов: " << hallsCount << "\n";
+    }
+    else {
+        std::cout << "Ошибка [operator--]: В комплексе '" << complexName
+            << "' нет залов для удаления! Операция невыполнима.\n";
+    }
+    return *this;
+}
+
+SportComplex SportComplex::operator--(int) {
+    SportComplex temp = *this;
+    --(*this);
+    return temp;
 }

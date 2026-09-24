@@ -1,4 +1,3 @@
-#pragma once
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -15,16 +14,17 @@ int main() {
     f1.init("Main court", "Covered", 30);
     f1.add_sport("Football");
     f1.add_sport("Volleyball");
-    complex.add_facility(f1);
+    complex += f1;
 
     int choice = 0;
     do {
         std::cout << "\n=== SPORT COMPLEX ===\n";
-        std::cout << "1. Short ifno \n";
+        std::cout << "1. Short info\n";
         std::cout << "2. Full info\n";
         std::cout << "3. Make adjustments\n";
         std::cout << "4. Sign up for a training session\n";
-        std::cout << "5. Add a court\n";
+        std::cout << "5. Add a court (using operator>> and +=)\n";
+        std::cout << "6. Delete last court (using operator--)\n";
         std::cout << "0. Exit\n";
         std::cout << "Your choice: ";
         std::cin >> choice;
@@ -44,6 +44,9 @@ int main() {
             break;
         case 5:
             complex.create_and_add_facility();
+            break;
+        case 6:
+            --complex;
             break;
         case 0:
             std::cout << "Программа завершена.\n";
