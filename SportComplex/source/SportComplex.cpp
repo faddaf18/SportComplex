@@ -1,7 +1,9 @@
 #include "SportComplex.h"
 
+SportComplex::SportComplex(std::string_view name) : complexName(name) {}
+
 void SportComplex::add_facility(const Facility& f) {
-    *this += f; 
+    *this += f;
 }
 
 void SportComplex::show_all_short() const {
@@ -34,19 +36,16 @@ void SportComplex::create_and_add_facility() {
     }
 
     Facility newFacility;
-    std::cin >> newFacility; 
-
+    std::cin >> newFacility;
     *this += newFacility;
 }
 
 void SportComplex::edit_facility_menu() {
     show_all_short();
     if (hallsCount == 0) return;
-
     std::cout << "Введите номер зала для редактирования (или 0 для отмены): ";
     std::size_t index = 0;
     std::cin >> index;
-
     if (index > 0 && index <= hallsCount) {
         std::cout << "1. Изменить название\n";
         std::cout << "2. Изменить вместимость\n";
@@ -54,7 +53,6 @@ void SportComplex::edit_facility_menu() {
         std::cout << "Выбор: ";
         int editChoice = 0;
         std::cin >> editChoice;
-
         if (editChoice == 1) {
             std::cout << "Введите новое название: ";
             std::string newName;
@@ -86,23 +84,18 @@ void SportComplex::edit_facility_menu() {
 void SportComplex::try_enroll() const {
     show_all_short();
     if (hallsCount == 0) return;
-
     std::cout << "Выберите номер зала для тренировки: ";
     std::size_t index = 0;
     std::cin >> index;
-
     if (index > 0 && index <= hallsCount) {
         std::cin.ignore();
         std::cout << "Какой вид спорта планируется? ";
         std::string sport;
         std::getline(std::cin, sport);
-
         std::cout << "Сколько человек будет в группе? ";
         int people = 0;
         std::cin >> people;
-
         bool result = halls.at(index - 1).check_training(sport, people);
-
         if (result == true) {
             std::cout << "-> УСПЕХ: Все условия соблюдены, тренировка разрешена!\n";
         }
@@ -116,11 +109,10 @@ SportComplex& SportComplex::operator+=(const Facility& f) {
     if (hallsCount < 10) {
         halls.at(hallsCount) = f;
         hallsCount++;
-        std::cout << "Объект '" << f.get_name() << "' успешно добавлен в комплекс через оператор += !\n";
+        std::cout << "Объект '" << f.get_name() << "' успешно добавлен в комплекс!\n";
     }
     else {
-        std::cout << "Ошибка [operator+=]: В комплексе '" << complexName
-            << "' достигнут лимит залов (максимум 10)! Добавление невыполнимо.\n";
+        std::cout << "Ошибка: В комплексе '" << complexName << "' достигнут лимит залов (максимум 10)!\n";
     }
     return *this;
 }
@@ -128,11 +120,10 @@ SportComplex& SportComplex::operator+=(const Facility& f) {
 SportComplex& SportComplex::operator--() {
     if (hallsCount > 0) {
         hallsCount--;
-        std::cout << "Последний зал удален из комплекса через оператор --. Осталось залов: " << hallsCount << "\n";
+        std::cout << "Последний зал удален. Осталось залов: " << hallsCount << "\n";
     }
     else {
-        std::cout << "Ошибка [operator--]: В комплексе '" << complexName
-            << "' нет залов для удаления! Операция невыполнима.\n";
+        std::cout << "Ошибка: В комплексе '" << complexName << "' нет залов для удаления!\n";
     }
     return *this;
 }

@@ -27,7 +27,6 @@ void Facility::clear_and_reset_sports() {
     int sCount = 0;
     std::cin >> sCount;
     std::cin.ignore();
-
     for (int i = 0; i < sCount && i < 3; i++) {
         std::string sport;
         std::cout << "Введите вид спорта #" << (i + 1) << ": ";
@@ -76,7 +75,6 @@ bool Facility::check_training(std::string_view sport, int people) const {
         std::cout << "-> Отказ: Группа из " << people << " человек превышает вместимость зала (" << capacity << " мест).\n";
         return false;
     }
-
     bool hasSport = false;
     for (std::size_t i = 0; i < sportCount; i++) {
         if (sports.at(i) == sport) {
@@ -84,69 +82,15 @@ bool Facility::check_training(std::string_view sport, int people) const {
             break;
         }
     }
-
     if (hasSport == false) {
         std::cout << "-> Отказ: В зале '" << name << "' не поддерживается вид спорта: " << sport << ".\n";
         return false;
     }
-
     return true;
 }
 
 bool Facility::operator==(const Facility& other) const {
     return name == other.name;
-}
-
-bool Facility::operator!=(const Facility& other) const {
-    return !(*this == other);
-}
-
-std::ostream& operator<<(std::ostream& os, const Facility& f) {
-    os << "[Facility] Название: " << f.name
-        << " | Тип: " << f.type
-        << " | Вместимость: " << f.capacity
-        << " | Виды спорта (" << f.sportCount << "/3): ";
-    if (f.sportCount == 0) {
-        os << "нет";
-    }
-    else {
-        for (std::size_t i = 0; i < f.sportCount; ++i) {
-            os << f.sports.at(i) << (i + 1 < f.sportCount ? ", " : "");
-        }
-    }
-    return os;
-}
-
-std::istream& operator>>(std::istream& is, Facility& f) {
-    std::cout << "Введите название объекта: ";
-    std::getline(is >> std::ws, f.name);
-
-    std::cout << "Введите тип объекта: ";
-    std::getline(is, f.type);
-
-    int cap = 0;
-    std::cout << "Введите вместимость: ";
-    if (is >> cap) {
-        f.set_capacity(cap);
-    }
-    else {
-        f.set_capacity(10);
-    }
-
-    int sCount = 0;
-    std::cout << "Сколько видов спорта добавить (от 0 до 3)? ";
-    is >> sCount;
-    is.ignore();
-
-    f.sportCount = 0;
-    for (int i = 0; i < sCount && i < 3; ++i) {
-        std::string sport;
-        std::cout << "Вид спорта #" << (i + 1) << ": ";
-        std::getline(is, sport);
-        f.add_sport(sport);
-    }
-
-    return is;
 }
 
 bool shareSameSports(const Facility& f1, const Facility& f2) {
@@ -162,9 +106,6 @@ bool shareSameSports(const Facility& f1, const Facility& f2) {
 
 void inspectFacilityInternals(const Facility& f) {
     std::cout << "[INSPECT PRIVATE DATA] Зал '" << f.name
-        << "', Поле capacity=" << f.capacity
-        << ", Занято слотов в sports[]=" << f.sportCount << ":\n";
-    for (std::size_t i = 0; i < f.sportCount; ++i) {
-        std::cout << "  - sports[" << i << "] = " << f.sports.at(i) << "\n";
-    }
+        << "', capacity=" << f.capacity
+        << ", занято слотов=" << f.sportCount << "\n";
 }

@@ -12,8 +12,7 @@ private:
     std::size_t hallsCount = 0;
 
 public:
-    explicit SportComplex(std::string_view name) : complexName(name) {}
-
+    explicit SportComplex(std::string_view name);
     void add_facility(const Facility& f);
     void show_all_short() const;
     void show_all_full() const;

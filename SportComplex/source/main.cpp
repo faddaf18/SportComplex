@@ -1,30 +1,26 @@
 #include <iostream>
-#include <string>
-#include <string_view>
-#include <array>
 #include "SportComplex.h"
 #include "Facility.h"
 
 int main() {
     std::setlocale(LC_ALL, ".65001");
 
-    SportComplex complex("Sport Complex");
+    SportComplex complex("Student Complex");
 
-    Facility f1;
-    f1.init("Main court", "Covered", 30);
+    Facility f1("Main Hall", "Indoor", 30);
     f1.add_sport("Football");
     f1.add_sport("Volleyball");
     complex += f1;
 
     int choice = 0;
     do {
-        std::cout << "\n=== SPORT COMPLEX ===\n";
-        std::cout << "1. Short info\n";
+        std::cout << "\n=== COMPLEX MENU ===\n";
+        std::cout << "1. Short info \n";
         std::cout << "2. Full info\n";
-        std::cout << "3. Make adjustments\n";
-        std::cout << "4. Sign up for a training session\n";
-        std::cout << "5. Add a court\n";
-        std::cout << "6. Delete last court\n";
+        std::cout << "3. Edit facility\n";
+        std::cout << "4. Check restrictions\n";
+        std::cout << "5. Add new facility\n";
+        std::cout << "6. Remove last facility\n";
         std::cout << "0. Exit\n";
         std::cout << "Your choice: ";
         std::cin >> choice;
@@ -49,10 +45,10 @@ int main() {
             --complex;
             break;
         case 0:
-            std::cout << "Программа завершена.\n";
+            std::cout << "Program terminated.\n";
             break;
         default:
-            std::cout << "Неверный пункт меню.\n";
+            std::cout << "Invalid menu option.\n";
         }
     } while (choice != 0);
 
