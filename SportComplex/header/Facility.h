@@ -3,6 +3,7 @@
 #include <string>
 #include <string_view>
 #include <array>
+#include <compare>
 
 class Facility {
 private:
@@ -28,10 +29,7 @@ public:
     bool check_training(std::string_view sport, int people) const;
     bool operator==(const Facility& other) const;
     bool operator!=(const Facility& other) const;
-    bool operator<(const Facility& other) const;
-    bool operator>(const Facility& other) const;
-    bool operator<=(const Facility& other) const;
-    bool operator>=(const Facility& other) const;
+    std::strong_ordering operator<=>(const Facility& other) const { return capacity <=> other.capacity; }
 
     friend std::ostream& operator<<(std::ostream& os, const Facility& f);
     friend std::istream& operator>>(std::istream& is, Facility& f);

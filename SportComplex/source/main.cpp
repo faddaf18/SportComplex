@@ -23,8 +23,8 @@ int main() {
         std::cout << "2. Full info\n";
         std::cout << "3. Make adjustments\n";
         std::cout << "4. Sign up for a training session\n";
-        std::cout << "5. Add a court (using operator>> and +=)\n";
-        std::cout << "6. Delete last court (using operator--)\n";
+        std::cout << "5. Add a court\n";
+        std::cout << "6. Delete last court\n";
         std::cout << "0. Exit\n";
         std::cout << "Your choice: ";
         std::cin >> choice;

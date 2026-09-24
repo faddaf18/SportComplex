@@ -101,22 +101,6 @@ bool Facility::operator!=(const Facility& other) const {
     return !(*this == other);
 }
 
-bool Facility::operator<(const Facility& other) const {
-    return capacity < other.capacity;
-}
-
-bool Facility::operator>(const Facility& other) const {
-    return capacity > other.capacity;
-}
-
-bool Facility::operator<=(const Facility& other) const {
-    return capacity <= other.capacity;
-}
-
-bool Facility::operator>=(const Facility& other) const {
-    return capacity >= other.capacity;
-}
-
 std::ostream& operator<<(std::ostream& os, const Facility& f) {
     os << "[Facility] Название: " << f.name
         << " | Тип: " << f.type
