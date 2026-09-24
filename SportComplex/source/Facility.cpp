@@ -103,9 +103,3 @@ bool shareSameSports(const Facility& f1, const Facility& f2) {
     }
     return false;
 }
-
-void inspectFacilityInternals(const Facility& f) {
-    std::cout << "[INSPECT PRIVATE DATA] Зал '" << f.name
-        << "', capacity=" << f.capacity
-        << ", занято слотов=" << f.sportCount << "\n";
-}
