@@ -3,8 +3,6 @@
 #include "Facility.h"
 
 int main() {
-    std::setlocale(LC_ALL, ".65001");
-
     SportComplex complex("Student Complex");
 
     Facility f1("Main Hall", "Indoor", 30);
