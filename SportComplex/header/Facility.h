@@ -82,6 +82,4 @@ public:
 
         return is;
     }
-
-    friend bool shareSameSports(const Facility& f1, const Facility& f2);
 };

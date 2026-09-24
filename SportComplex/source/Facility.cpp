@@ -92,14 +92,3 @@ bool Facility::check_training(std::string_view sport, int people) const {
 bool Facility::operator==(const Facility& other) const {
     return name == other.name;
 }
-
-bool shareSameSports(const Facility& f1, const Facility& f2) {
-    for (std::size_t i = 0; i < f1.sportCount; ++i) {
-        for (std::size_t j = 0; j < f2.sportCount; ++j) {
-            if (f1.sports.at(i) == f2.sports.at(j)) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
