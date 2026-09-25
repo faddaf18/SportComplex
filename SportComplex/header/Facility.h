@@ -4,13 +4,14 @@
 #include <string_view>
 #include <array>
 #include <compare>
+#define SportsCount 3
 
 class Facility {
 private:
     std::string name = "Unknown";
     std::string type = "Unknown";
     int capacity = 0;
-    std::array<std::string, 3> sports;
+    std::array<std::string, SportsCount> sports;
     std::size_t sportCount = 0;
 
 public:
@@ -72,7 +73,7 @@ public:
         is.ignore();
 
         f.sportCount = 0;
-        for (int i = 0; i < sCount && i < 3; ++i) {
+        for (int i = 0; i < sCount && i < SportsCount; ++i) {
             std::string sport;
             std::cout << "Sport #" << (i + 1) << ": ";
             std::getline(is, sport);

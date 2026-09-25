@@ -26,7 +26,7 @@ void SportComplex::show_all_full() const {
 }
 
 void SportComplex::create_and_add_facility() {
-    if (hallsCount >= 10) {
+    if (hallsCount >= FacilityCount) {
         std::cout << "Cannot add more facilities, limit reached.\n";
         return;
     }
@@ -34,6 +34,7 @@ void SportComplex::create_and_add_facility() {
     Facility newFacility;
     std::cin >> newFacility;
     *this += newFacility;
+    std::cout << "Facility successfully added to complex!\n";
 }
 
 void SportComplex::edit_facility_menu() {
@@ -102,10 +103,9 @@ void SportComplex::try_enroll() const {
 }
 
 SportComplex& SportComplex::operator+=(const Facility& f) {
-    if (hallsCount < 10) {
+    if (hallsCount < FacilityCount) {
         halls.at(hallsCount) = f;
         hallsCount++;
-        std::cout << "Facility '" << f.get_name() << "' successfully added to complex!\n";
     }
     else {
         std::cout << "Error: Limit reached (max 10 facilities) in '" << complexName << "'!\n";

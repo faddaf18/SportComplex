@@ -4,11 +4,12 @@
 #include <string_view>
 #include <array>
 #include "Facility.h"
+#define FacilityCount 10
 
 class SportComplex {
 private:
     std::string complexName;
-    std::array<Facility, 10> halls;
+    std::array<Facility, FacilityCount> halls;
     std::size_t hallsCount = 0;
 
 public:
