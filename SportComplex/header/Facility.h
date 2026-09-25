@@ -7,11 +7,11 @@
 
 class Facility {
 private:
-    static constexpr int SPORTSCOUNT = 3;
+    static constexpr int SPORTS_COUNT = 3;
     std::string name = "Unknown";
     std::string type = "Unknown";
     int capacity = 0;
-    std::array<std::string, SPORTSCOUNT> sports;
+    std::array<std::string, SPORTS_COUNT> sports;
     std::size_t sportCount = 0;
 
 public:
@@ -73,7 +73,7 @@ public:
         is.ignore();
 
         f.sportCount = 0;
-        for (int i = 0; i < sCount && i < SPORTSCOUNT; ++i) {
+        for (int i = 0; i < sCount && i < SPORTS_COUNT; ++i) {
             std::string sport;
             std::cout << "Sport #" << (i + 1) << ": ";
             std::getline(is, sport);

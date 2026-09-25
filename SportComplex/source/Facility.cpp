@@ -6,7 +6,7 @@ Facility::Facility(std::string_view n, std::string_view t, int cap)
 }
 
 void Facility::add_sport(std::string_view sportName) {
-    if (sportCount < SPORTSCOUNT) {
+    if (sportCount < SPORTS_COUNT) {
         sports.at(sportCount) = std::string(sportName);
         sportCount++;
     }
@@ -21,7 +21,7 @@ void Facility::clear_and_reset_sports() {
     int sCount = 0;
     std::cin >> sCount;
     std::cin.ignore();
-    for (int i = 0; i < sCount && i < SPORTSCOUNT; i++) {
+    for (int i = 0; i < sCount && i < SPORTS_COUNT; i++) {
         std::string sport;
         std::cout << "Enter sport #" << (i + 1) << ": ";
         std::getline(std::cin, sport);

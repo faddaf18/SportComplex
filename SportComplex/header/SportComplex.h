@@ -7,9 +7,9 @@
 
 class SportComplex {
 private:
-    static constexpr int FACILITYCOUNT = 10;
+    static constexpr int FACILITY_COUNT = 10;
     std::string complexName;
-    std::array<Facility, FACILITYCOUNT> halls;
+    std::array<Facility, FACILITY_COUNT> halls;
     std::size_t hallsCount = 0;
 
 public:
