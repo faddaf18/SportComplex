@@ -116,7 +116,6 @@ SportComplex& SportComplex::operator+=(const Facility& f) {
 SportComplex& SportComplex::operator--() {
     if (hallsCount > 0) {
         hallsCount--;
-        std::cout << "Last facility removed. Remaining facilities: " << hallsCount << "\n";
     }
     else {
         std::cout << "Error: No facilities to remove in '" << complexName << "'!\n";

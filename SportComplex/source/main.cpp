@@ -41,6 +41,7 @@ int main() {
             break;
         case 6:
             --complex;
+            std::cout << "Last facility removed.\n";
             break;
         case 0:
             std::cout << "Program terminated.\n";
