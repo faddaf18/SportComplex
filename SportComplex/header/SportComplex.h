@@ -4,12 +4,12 @@
 #include <string_view>
 #include <array>
 #include "Facility.h"
-#define FacilityCount 10
 
 class SportComplex {
 private:
+    static constexpr int FACILITYCOUNT = 10;
     std::string complexName;
-    std::array<Facility, FacilityCount> halls;
+    std::array<Facility, FACILITYCOUNT> halls;
     std::size_t hallsCount = 0;
 
 public:

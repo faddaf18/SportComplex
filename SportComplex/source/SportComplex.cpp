@@ -26,7 +26,7 @@ void SportComplex::show_all_full() const {
 }
 
 void SportComplex::create_and_add_facility() {
-    if (hallsCount >= FacilityCount) {
+    if (hallsCount >= FACILITYCOUNT) {
         std::cout << "Cannot add more facilities, limit reached.\n";
         return;
     }
@@ -103,7 +103,7 @@ void SportComplex::try_enroll() const {
 }
 
 SportComplex& SportComplex::operator+=(const Facility& f) {
-    if (hallsCount < FacilityCount) {
+    if (hallsCount < FACILITYCOUNT) {
         halls.at(hallsCount) = f;
         hallsCount++;
     }
