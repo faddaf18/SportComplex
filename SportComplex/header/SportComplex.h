@@ -2,15 +2,15 @@
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <array>
+#include <vector>
+#include <memory>
 #include "Facility.h"
 
 class SportComplex {
 private:
-    static constexpr int FACILITY_COUNT = 10;
+    static constexpr std::size_t MAX_FACILITIES = 10;
     std::string complexName;
-    std::array<Facility, FACILITY_COUNT> halls;
-    std::size_t hallsCount = 0;
+    std::vector<std::unique_ptr<Facility>> halls;
 
 public:
     explicit SportComplex(std::string_view name);
@@ -18,11 +18,11 @@ public:
     void show_all_full() const;
     void create_and_add_facility();
     void edit_facility_menu();
-    void try_enroll() const;
+    void add_coach_menu();
+    void enroll_to_coach_menu();
 
-    std::size_t get_halls_count() const { return hallsCount; }
-    const Facility& get_facility(std::size_t index) const { return halls.at(index); }
+    std::size_t get_halls_count() const { return halls.size(); }
 
-    SportComplex& operator+=(const Facility& f);
+    SportComplex& operator+=(std::unique_ptr<Facility> f);
     SportComplex& operator--();
 };
