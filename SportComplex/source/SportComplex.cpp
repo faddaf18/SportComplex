@@ -201,3 +201,26 @@ SportComplex& SportComplex::operator--() {
     }
     return *this;
 }
+
+void SportComplex::show_specific_features(std::ostream& os) const {
+    if (halls.empty()) {
+        os << "No facilities in the complex.\n";
+        return;
+    }
+
+    os << "\n=== SPECIFIC FACILITY FEATURES ===\n";
+    for (size_t i = 0; i < halls.size(); ++i) {
+        os << i + 1 << ". [" << halls[i]->get_name() << "] (" << halls[i]->get_type_name() << "):\n";
+
+        if (const auto* gym = dynamic_cast<const Gym*>(halls[i].get())) {
+            os << "   -> Required instructors for equipment: " << gym->calculate_required_instructors() << "\n";
+        }
+        else if (const auto* pool = dynamic_cast<const SwimmingPool*>(halls[i].get())) {
+            os << "   -> Required water volume: " << pool->calculate_water_volume() << " liters\n";
+        }
+        else if (const auto* stadium = dynamic_cast<const Stadium*>(halls[i].get())) {
+            os << "   -> Lighting status: " << stadium->check_lighting_readiness() << "\n";
+        }
+    }
+    os << "==================================\n";
+}

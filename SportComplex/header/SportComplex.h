@@ -20,6 +20,7 @@ public:
     void edit_facility_menu();
     void add_coach_menu();
     void enroll_to_coach_menu();
+    void show_specific_features(std::ostream& os) const;
 
     std::size_t get_halls_count() const { return halls.size(); }
 

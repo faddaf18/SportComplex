@@ -36,6 +36,7 @@ int main() {
         std::cout << "5. Edit facility\n";
         std::cout << "6. Add new facility\n";
         std::cout << "7. Remove last facility\n";
+        std::cout << "8. Show specific features\n";
         std::cout << "0. Exit\n";
         std::cout << "Your choice: ";
         std::cin >> choice;
@@ -62,6 +63,9 @@ int main() {
         case 7:
             --complex;
             std::cout << "Last facility removed.\n";
+            break;
+        case 8:
+            complex.show_specific_features(std::cout);
             break;
         case 0:
             std::cout << "Program terminated.\n";

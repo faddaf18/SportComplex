@@ -11,6 +11,7 @@ public:
 
     void set_equipment_count(int count);
     int get_equipment_count() const { return equipmentCount; }
+    int calculate_required_instructors() const;
 
     std::string_view get_type_name() const override { return "Gym"; }
     int calculate_max_daily_capacity() const override;

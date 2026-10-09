@@ -16,3 +16,7 @@ void SwimmingPool::print_full_info(std::ostream& os) const {
     os << "Lanes: " << laneCount
         << "\n-----------------------------\n";
 }
+
+int SwimmingPool::calculate_water_volume() const {
+    return get_capacity() * 500 * (laneCount > 0 ? laneCount : 1);
+}

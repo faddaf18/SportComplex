@@ -16,3 +16,8 @@ void Gym::print_full_info(std::ostream& os) const {
     os << "Equipment count: " << equipmentCount
         << "\n-----------------------------\n";
 }
+
+int Gym::calculate_required_instructors() const {
+    if (equipmentCount <= 0) return 1;
+    return (equipmentCount / 5) + 1;
+}

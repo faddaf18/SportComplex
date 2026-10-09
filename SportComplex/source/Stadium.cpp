@@ -12,3 +12,7 @@ void Stadium::print_full_info(std::ostream& os) const {
     os << "Has lighting: " << (hasLighting ? "Yes" : "No")
         << "\n-----------------------------\n";
 }
+
+std::string_view Stadium::check_lighting_readiness() const {
+    return hasLighting ? "Lighting is fully operational for night events." : "Warning: No lighting system available!";
+}
