@@ -11,7 +11,7 @@ public:
 
     void set_lighting(bool lighting) { hasLighting = lighting; }
     bool get_lighting() const { return hasLighting; }
-    std::string_view check_lighting_readiness() const;
+    double calculate_maintenance_cost() const;
 
     std::string_view get_type_name() const override { return "Stadium"; }
     int calculate_max_daily_capacity() const override;

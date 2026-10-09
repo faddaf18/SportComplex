@@ -13,6 +13,13 @@ void Stadium::print_full_info(std::ostream& os) const {
         << "\n-----------------------------\n";
 }
 
-std::string_view Stadium::check_lighting_readiness() const {
-    return hasLighting ? "Lighting is fully operational for night events." : "Warning: No lighting system available!";
+double Stadium::calculate_maintenance_cost() const {
+    double base_cost = get_capacity() * 50.0;
+    
+    if (hasLighting) {
+        double electricity_cost = 25000.0;
+        return base_cost + electricity_cost;
+    }
+    
+    return base_cost;
 }

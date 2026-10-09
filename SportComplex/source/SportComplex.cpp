@@ -219,7 +219,7 @@ void SportComplex::show_specific_features(std::ostream& os) const {
             os << "   -> Required water volume: " << pool->calculate_water_volume() << " liters\n";
         }
         else if (const auto* stadium = dynamic_cast<const Stadium*>(halls[i].get())) {
-            os << "   -> Lighting status: " << stadium->check_lighting_readiness() << "\n";
+            os << "   -> Maintenance cost: " << stadium->calculate_maintenance_cost() << " USD\n";
         }
     }
     os << "==================================\n";
