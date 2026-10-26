@@ -14,7 +14,7 @@ void Facility::add_sport(std::string_view sportName) {
 }
 
 bool Facility::has_sport(std::string_view sportName) const {
-    return sports.find_if([&](const std::string& s) { return s == sportName; }) != nullptr;
+    return sports.find_if([sportName](const std::string& s) { return s == sportName; }) != nullptr;
 }
 
 bool Facility::remove_sport(std::size_t index) {
@@ -68,7 +68,7 @@ bool Facility::add_coach(std::string_view lastName, std::string_view sport, int 
 }
 
 bool Facility::enroll_to_coach(std::string_view coachLastName, int people) {
-    Coach* coach = coaches.find_if([&](const Coach& c) {
+    Coach* coach = coaches.find_if([coachLastName](const Coach& c) {
         return c.get_last_name() == coachLastName;
         });
     if (coach == nullptr) {
@@ -88,7 +88,7 @@ bool Facility::enroll_to_coach(std::string_view coachLastName, int people) {
 }
 
 bool Facility::remove_coach(std::string_view lastName) {
-    auto index = coaches.find_index([&](const Coach& c) {
+    auto index = coaches.find_index([lastName](const Coach& c) {
         return c.get_last_name() == lastName;
         });
     if (!index.has_value()) {

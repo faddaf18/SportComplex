@@ -10,17 +10,6 @@
 #include <utility>
 #include <vector>
 
-namespace detail {
-    template <typename U>
-    void print_item(std::ostream& os, const U& value) { os << value; }
-
-    template <typename U>
-    void print_item(std::ostream& os, const std::unique_ptr<U>& ptr) {
-        if (ptr) os << *ptr;
-        else os << "(null)";
-    }
-}
-
 template <typename T>
 class Collection {
 private:
@@ -48,7 +37,8 @@ public:
     template <typename Pred>
     std::size_t remove_if(Pred pred) {
         const std::size_t before = items.size();
-        items.erase(std::remove_if(items.begin(), items.end(), pred), items.end());
+        auto removed = std::ranges::remove_if(items, pred);
+        items.erase(removed.begin(), removed.end());
         return before - items.size();
     }
 
@@ -104,8 +94,15 @@ public:
             return;
         }
         for (std::size_t i = 0; i < items.size(); ++i) {
+            const auto& item = items[i];
             os << "  " << i + 1 << ". ";
-            detail::print_item(os, items[i]);
+            if constexpr (requires { *item; }) {
+                if (item) os << *item;
+                else os << "(null)";
+            }
+            else {
+                os << item;
+            }
             os << "\n";
         }
     }

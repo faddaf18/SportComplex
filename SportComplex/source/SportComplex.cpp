@@ -5,6 +5,14 @@
 #include "Collection.h"
 #include <stdexcept>
 
+static bool name_contains(const std::string& name, const std::string& part) {
+#ifdef __cpp_lib_string_contains
+    return name.contains(part);
+#else
+    return name.find(part) != std::string::npos;
+#endif
+}
+
 SportComplex::SportComplex(std::string_view name) : complexName(name) {}
 
 void SportComplex::show_all_short() const {
@@ -279,12 +287,12 @@ void SportComplex::search_facilities_menu() const {
         std::cout << (choice == 1 ? "Enter name: " : "Enter sport: ");
         std::getline(std::cin, text);
         if (choice == 1) {
-            found = select_indices(halls, [&](const std::unique_ptr<Facility>& f) {
-                return f->get_name().find(text) != std::string::npos;
+            found = select_indices(halls, [text](const std::unique_ptr<Facility>& f) {
+                return name_contains(f->get_name(), text);
                 });
         }
         else {
-            found = select_indices(halls, [&](const std::unique_ptr<Facility>& f) {
+            found = select_indices(halls, [text](const std::unique_ptr<Facility>& f) {
                 return f->has_sport(text);
                 });
         }
@@ -293,7 +301,7 @@ void SportComplex::search_facilities_menu() const {
         int minCap = 0;
         std::cout << "Enter N: ";
         std::cin >> minCap;
-        found = select_indices(halls, [&](const std::unique_ptr<Facility>& f) {
+        found = select_indices(halls, [minCap](const std::unique_ptr<Facility>& f) {
             return f->get_capacity() >= minCap;
             });
     }
@@ -301,7 +309,7 @@ void SportComplex::search_facilities_menu() const {
         int type = 0;
         std::cout << "Type: ";
         std::cin >> type;
-        found = select_indices(halls, [&](const std::unique_ptr<Facility>& f) {
+        found = select_indices(halls, [type](const std::unique_ptr<Facility>& f) {
             switch (type) {
             case 1: return dynamic_cast<const Gym*>(f.get()) != nullptr;
             case 2: return dynamic_cast<const SwimmingPool*>(f.get()) != nullptr;
@@ -331,7 +339,6 @@ void SportComplex::show_statistics() const {
         std::cout << "No facilities in the complex.\n";
         return;
     }
-    // Три коллекции разных типов, построенные одним и тем же шаблоном
     Collection<std::string> names = transform_collection(halls, [](const std::unique_ptr<Facility>& f) {
         return f->get_name();
         });
@@ -510,8 +517,8 @@ void SportComplex::search_coaches_menu() const {
         std::size_t total = 0;
         for (const auto& hall : halls) {
             Collection<Coach> found = (choice == 1)
-                ? filter_collection(hall->get_coaches(), [&](const Coach& c) { return c.get_sport() == sport; })
-                : filter_collection(hall->get_coaches(), [&](const Coach& c) { return c.get_max_group_size() >= minGroup; });
+                ? filter_collection(hall->get_coaches(), [&sport](const Coach& c) { return c.get_sport() == sport; })
+                : filter_collection(hall->get_coaches(), [minGroup](const Coach& c) { return c.get_max_group_size() >= minGroup; });
             if (!found.empty()) {
                 std::cout << "[" << hall->get_name() << "]\n" << found;
                 total += found.get_size();
