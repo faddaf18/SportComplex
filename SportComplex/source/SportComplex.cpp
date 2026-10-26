@@ -5,7 +5,7 @@
 #include "Collection.h"
 #include <stdexcept>
 
-static bool name_contains(const std::string& name, const std::string& part) {
+static bool name_contains(const std::string_view& name, const std::string_view& part) {
 #ifdef __cpp_lib_string_contains
     return name.contains(part);
 #else
