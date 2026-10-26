@@ -13,8 +13,6 @@ bool Coach::enroll(int people) {
     return false;
 }
 
-void Coach::print_info() const {
-    std::cout << "Coach: " << lastName
-        << " | Sport: " << sport
-        << " | Group: " << currentGroupSize << "/" << maxGroupSize << "\n";
+void Coach::print_info(std::ostream& os) const {
+    os << *this << "\n";
 }

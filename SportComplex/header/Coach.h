@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <string>
 #include <string_view>
 
@@ -19,5 +20,12 @@ public:
     int get_current_group_size() const { return currentGroupSize; }
 
     bool enroll(int people);
-    void print_info() const;
+    void print_info(std::ostream& os = std::cout) const;
+
+    friend std::ostream& operator<<(std::ostream& os, const Coach& c) {
+        os << "Coach: " << c.lastName
+            << " | Sport: " << c.sport
+            << " | Group: " << c.currentGroupSize << "/" << c.maxGroupSize;
+        return os;
+    }
 };

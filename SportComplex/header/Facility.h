@@ -5,15 +5,15 @@
 #include <array>
 #include <vector>
 #include "Coach.h"
+#include "Collection.h"
 
 class Facility {
 private:
     static constexpr int SPORTS_COUNT = 3;
     std::string name = "Unknown";
     int capacity = 0;
-    std::array<std::string, SPORTS_COUNT> sports;
-    std::size_t sportCount = 0;
-    std::vector<Coach> coaches;
+    Collection<std::string> sports;
+    Collection<Coach> coaches;
 
 public:
     Facility() = default;
@@ -22,6 +22,9 @@ public:
 
     void add_sport(std::string_view sportName);
     bool has_sport(std::string_view sportName) const;
+    bool remove_sport(std::size_t index);
+    void clear_sports() { sports.clear(); }
+    const Collection<std::string>& get_sports() const { return sports; }
     void clear_and_reset_sports();
     void set_capacity(int newCap);
     void set_name(std::string_view newName);
@@ -29,6 +32,10 @@ public:
 
     bool add_coach(std::string_view lastName, std::string_view sport, int maxGroup);
     bool enroll_to_coach(std::string_view coachLastName, int people);
+    bool remove_coach(std::string_view lastName);
+    bool remove_coach_at(std::size_t index);
+    void clear_coaches();
+    const Collection<Coach>& get_coaches() const { return coaches; }
     void show_coaches() const;
 
     std::string get_name() const { return name; }

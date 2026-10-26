@@ -5,9 +5,8 @@ Facility::Facility(std::string_view n, int cap) : name(n) {
 }
 
 void Facility::add_sport(std::string_view sportName) {
-    if (sportCount < SPORTS_COUNT) {
-        sports.at(sportCount) = std::string(sportName);
-        sportCount++;
+    if (static_cast<int>(sports.get_size()) < SPORTS_COUNT) {
+        sports.add(std::string(sportName));
     }
     else {
         std::cout << "Sports limit reached for this facility (max 3).\n";
@@ -15,16 +14,15 @@ void Facility::add_sport(std::string_view sportName) {
 }
 
 bool Facility::has_sport(std::string_view sportName) const {
-    for (std::size_t i = 0; i < sportCount; ++i) {
-        if (sports.at(i) == sportName) {
-            return true;
-        }
-    }
-    return false;
+    return sports.find_if([&](const std::string& s) { return s == sportName; }) != nullptr;
+}
+
+bool Facility::remove_sport(std::size_t index) {
+    return sports.remove(index);
 }
 
 void Facility::clear_and_reset_sports() {
-    sportCount = 0;
+    sports.clear();
     std::cout << "How many sports will be available (1 to 3)? ";
     int sCount = 0;
     std::cin >> sCount;
@@ -64,30 +62,56 @@ bool Facility::add_coach(std::string_view lastName, std::string_view sport, int 
         std::cout << "-> ERROR: Coach group size (" << maxGroup << ") exceeds facility capacity (" << capacity << ")!\n";
         return false;
     }
-    coaches.emplace_back(lastName, sport, maxGroup);
+    coaches.add(Coach(lastName, sport, maxGroup));
     std::cout << "-> SUCCESS: Coach " << lastName << " (" << sport << ") added to " << name << ".\n";
     return true;
 }
 
 bool Facility::enroll_to_coach(std::string_view coachLastName, int people) {
-    for (auto& coach : coaches) {
-        if (coach.get_last_name() == coachLastName) {
-            if (coach.enroll(people)) {
-                std::cout << "-> SUCCESS: Enrolled " << people << " athletes to coach "
-                    << coachLastName << ". Group status: "
-                    << coach.get_current_group_size() << "/" << coach.get_max_group_size() << ".\n";
-                return true;
-            }
-            else {
-                std::cout << "-> DENIED: Cannot enroll " << people << " athletes to coach "
-                    << coachLastName << ". Exceeds max group limit ("
-                    << coach.get_current_group_size() + people << "/" << coach.get_max_group_size() << ").\n";
-                return false;
-            }
-        }
+    Coach* coach = coaches.find_if([&](const Coach& c) {
+        return c.get_last_name() == coachLastName;
+        });
+    if (coach == nullptr) {
+        std::cout << "-> ERROR: Coach '" << coachLastName << "' not found in facility '" << name << "'!\n";
+        return false;
     }
-    std::cout << "-> ERROR: Coach '" << coachLastName << "' not found in facility '" << name << "'!\n";
+    if (coach->enroll(people)) {
+        std::cout << "-> SUCCESS: Enrolled " << people << " athletes to coach "
+            << coachLastName << ". Group status: "
+            << coach->get_current_group_size() << "/" << coach->get_max_group_size() << ".\n";
+        return true;
+    }
+    std::cout << "-> DENIED: Cannot enroll " << people << " athletes to coach "
+        << coachLastName << ". Exceeds max group limit ("
+        << coach->get_current_group_size() + people << "/" << coach->get_max_group_size() << ").\n";
     return false;
+}
+
+bool Facility::remove_coach(std::string_view lastName) {
+    auto index = coaches.find_index([&](const Coach& c) {
+        return c.get_last_name() == lastName;
+        });
+    if (!index.has_value()) {
+        std::cout << "-> ERROR: Coach '" << lastName << "' not found in facility '" << name << "'!\n";
+        return false;
+    }
+    coaches.remove(*index);
+    std::cout << "-> SUCCESS: Coach " << lastName << " removed from " << name << ".\n";
+    return true;
+}
+
+bool Facility::remove_coach_at(std::size_t index) {
+    if (!coaches.remove(index)) {
+        std::cout << "-> ERROR: Invalid coach number in facility '" << name << "'!\n";
+        return false;
+    }
+    std::cout << "-> SUCCESS: Coach #" << index + 1 << " removed from " << name << ".\n";
+    return true;
+}
+
+void Facility::clear_coaches() {
+    coaches.clear();
+    std::cout << "-> SUCCESS: All coaches removed from " << name << ".\n";
 }
 
 void Facility::show_coaches() const {
@@ -95,7 +119,9 @@ void Facility::show_coaches() const {
         std::cout << "No coaches assigned to this facility.\n";
         return;
     }
+    std::size_t number = 1;
     for (const auto& coach : coaches) {
+        std::cout << number++ << ". ";
         coach.print_info();
     }
 }
@@ -106,15 +132,15 @@ void Facility::print_full_info(std::ostream& os) const {
         << "\nCapacity: " << capacity << " people"
         << "\nMax Daily Capacity: " << calculate_max_daily_capacity() << " people"
         << "\nSports: ";
-    if (sportCount == 0) {
+    if (sports.empty()) {
         os << "None";
     }
     else {
-        for (std::size_t i = 0; i < sportCount; ++i) {
-            os << sports.at(i) << (i + 1 < sportCount ? ", " : "");
+        for (std::size_t i = 0; i < sports.get_size(); ++i) {
+            os << sports.get(i) << (i + 1 < sports.get_size() ? ", " : "");
         }
     }
-    os << "\nCoaches (" << coaches.size() << "):\n";
+    os << "\nCoaches (" << coaches.get_size() << "):\n";
     if (coaches.empty()) {
         os << "  None\n";
     }

@@ -1,9 +1,11 @@
 #include <iostream>
 #include <memory>
+#include <string>
 #include "SportComplex.h"
 #include "Gym.h"
 #include "SwimmingPool.h"
 #include "Stadium.h"
+#include "Collection.h"
 
 int main() {
     SportComplex complex("Student Complex");
@@ -37,6 +39,15 @@ int main() {
         std::cout << "6. Add new facility\n";
         std::cout << "7. Remove last facility\n";
         std::cout << "8. Show specific features\n";
+        std::cout << "9. Show facility by number\n";
+        std::cout << "10. Remove facility by number\n";
+        std::cout << "11. Search facilities\n";
+        std::cout << "12. Statistics (counts, totals)\n";
+        std::cout << "13. Clear all facilities\n";
+        std::cout << "14. Show coach by number\n";
+        std::cout << "15. Remove coach / clear coaches\n";
+        std::cout << "16. Search coaches\n";
+        std::cout << "17. Manage facility sports\n";
         std::cout << "0. Exit\n";
         std::cout << "Your choice: ";
         std::cin >> choice;
@@ -66,6 +77,33 @@ int main() {
             break;
         case 8:
             complex.show_specific_features(std::cout);
+            break;
+        case 9:
+            complex.show_facility_by_index_menu();
+            break;
+        case 10:
+            complex.remove_facility_by_index_menu();
+            break;
+        case 11:
+            complex.search_facilities_menu();
+            break;
+        case 12:
+            complex.show_statistics();
+            break;
+        case 13:
+            complex.clear_facilities_menu();
+            break;
+        case 14:
+            complex.show_coach_by_index_menu();
+            break;
+        case 15:
+            complex.remove_coach_menu();
+            break;
+        case 16:
+            complex.search_coaches_menu();
+            break;
+        case 17:
+            complex.manage_sports_menu();
             break;
         case 0:
             std::cout << "Program terminated.\n";
