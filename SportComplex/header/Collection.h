@@ -16,9 +16,6 @@ private:
     std::vector<T> items;
 
 public:
-    using iterator = typename std::vector<T>::iterator;
-    using const_iterator = typename std::vector<T>::const_iterator;
-
     Collection() = default;
     Collection(std::initializer_list<T> init) : items(init) {}
 
@@ -112,10 +109,10 @@ public:
         return os;
     }
 
-    iterator begin() { return items.begin(); }
-    iterator end() { return items.end(); }
-    const_iterator begin() const { return items.begin(); }
-    const_iterator end() const { return items.end(); }
+    std::vector<T>::iterator begin() { return items.begin(); }
+    std::vector<T>::iterator end() { return items.end(); }
+    std::vector<T>::const_iterator begin() const { return items.begin(); }
+    std::vector<T>::const_iterator end() const { return items.end(); }
 };
 
 template <typename T, typename Pred>
