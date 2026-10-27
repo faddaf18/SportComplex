@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <concepts>
 #include <cstddef>
 #include <initializer_list>
 #include <iostream>
@@ -10,12 +11,18 @@
 #include <utility>
 #include <vector>
 
+template <typename U>
+concept Dereferenceable = requires(const U & u) { *u; };
+
 template <typename T>
 class Collection {
 private:
     std::vector<T> items;
 
 public:
+    using iterator = typename std::vector<T>::iterator;
+    using const_iterator = typename std::vector<T>::const_iterator;
+
     Collection() = default;
     Collection(std::initializer_list<T> init) : items(init) {}
 
@@ -73,13 +80,19 @@ public:
         return nullptr;
     }
 
-    std::optional<std::size_t> index_of(const T& value) const {
+    std::optional<std::size_t> index_of(const T& value) const
+        requires std::equality_comparable<T>
+    {
         for (std::size_t i = 0; i < items.size(); ++i) {
             if (items[i] == value) return i;
         }
         return std::nullopt;
     }
-    bool contains(const T& value) const { return index_of(value).has_value(); }
+    bool contains(const T& value) const
+        requires std::equality_comparable<T>
+    {
+        return index_of(value).has_value();
+    }
 
     std::size_t get_size() const { return items.size(); }
     bool empty() const { return items.empty(); }
@@ -93,7 +106,7 @@ public:
         for (std::size_t i = 0; i < items.size(); ++i) {
             const auto& item = items[i];
             os << "  " << i + 1 << ". ";
-            if constexpr (requires { *item; }) {
+            if constexpr (Dereferenceable<T>) {
                 if (item) os << *item;
                 else os << "(null)";
             }
@@ -109,10 +122,10 @@ public:
         return os;
     }
 
-    std::vector<T>::iterator begin() { return items.begin(); }
-    std::vector<T>::iterator end() { return items.end(); }
-    std::vector<T>::const_iterator begin() const { return items.begin(); }
-    std::vector<T>::const_iterator end() const { return items.end(); }
+    iterator begin() { return items.begin(); }
+    iterator end() { return items.end(); }
+    const_iterator begin() const { return items.begin(); }
+    const_iterator end() const { return items.end(); }
 };
 
 template <typename T, typename Pred>
