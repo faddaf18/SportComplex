@@ -41,52 +41,49 @@ const Facility& SportComplex::facility_at(std::size_t number) const {
     return *halls.get(number - 1);
 }
 
-void SportComplex::ensure_name_unique(const std::string& name) const {
-    const auto* same = halls.find_if([&name](const std::unique_ptr<Facility>& f) {
+void SportComplex::ensure_name_unique(std::string_view name) const {
+    const auto* same = halls.find_if([name](const std::unique_ptr<Facility>& f) {
         return f->get_name() == name;
         });
     if (same != nullptr) {
-        throw DuplicateIdException("Facility", name, "complex '" + complexName + "'");
+        throw DuplicateIdException("Facility", std::string(name), "complex '" + complexName + "'");
     }
 }
 
-void SportComplex::report_current_exception() const {
-    try {
-        throw;
+void SportComplex::report_current_exception(const std::exception& e) const {
+    if (const auto* ex = dynamic_cast<const InvalidDataException*>(&e)) {
+        std::cout << "[INVALID DATA] " << ex->what() << "\n"
+            << "Check the value of '" << ex->get_field() << "' and try again.\n";
     }
-    catch (const InvalidDataException& e) {
-        std::cout << "[INVALID DATA] " << e.what() << "\n"
-            << "Check the value of '" << e.get_field() << "' and try again.\n";
+    else if (const auto* ex = dynamic_cast<const ObjectNotFoundException*>(&e)) {
+        std::cout << "[NOT FOUND] " << ex->what() << "\n";
+        std::cout << "Check the spelling of '" << ex->get_key() << "' (the name is case-sensitive).\n";
     }
-    catch (const ObjectNotFoundException& e) {
-        std::cout << "[NOT FOUND] " << e.what() << "\n";
-        std::cout << "Check the spelling of '" << e.get_key() << "' (the name is case-sensitive).\n";
+    else if (const auto* ex = dynamic_cast<const DuplicateIdException*>(&e)) {
+        std::cout << "[DUPLICATE] " << ex->what() << "\n"
+            << "Identifiers must be unique: choose a name other than '" << ex->get_id() << "'.\n";
     }
-    catch (const DuplicateIdException& e) {
-        std::cout << "[DUPLICATE] " << e.what() << "\n"
-            << "Identifiers must be unique: choose a name other than '" << e.get_id() << "'.\n";
+    else if (const auto* ex = dynamic_cast<const ConstraintViolationException*>(&e)) {
+        std::cout << "[LIMIT VIOLATED] " << ex->what() << "\n"
+            << "Violated constraint: " << ex->get_constraint() << ". Nothing was changed.\n";
     }
-    catch (const ConstraintViolationException& e) {
-        std::cout << "[LIMIT VIOLATED] " << e.what() << "\n"
-            << "Violated constraint: " << e.get_constraint() << ". Nothing was changed.\n";
-    }
-    catch (const IndexOutOfRangeException& e) {
-        std::cout << "[OUT OF RANGE] " << e.what() << "\n";
-        if (e.get_count() > 0) {
-            std::cout << "Enter a number between 1 and " << e.get_count() << ".\n";
+    else if (const auto* ex = dynamic_cast<const IndexOutOfRangeException*>(&e)) {
+        std::cout << "[OUT OF RANGE] " << ex->what() << "\n";
+        if (ex->get_count() > 0) {
+            std::cout << "Enter a number between 1 and " << ex->get_count() << ".\n";
         }
     }
-    catch (const BrokenRelationException& e) {
-        std::cout << "[BROKEN LINK] " << e.what() << "\n"
+    else if (const auto* ex = dynamic_cast<const BrokenRelationException*>(&e)) {
+        std::cout << "[BROKEN LINK] " << ex->what() << "\n"
             << "The operation was cancelled, existing data is intact.\n";
     }
-    catch (const InvalidOperationException& e) {
-        std::cout << "[NOT ALLOWED] " << e.what() << "\n";
+    else if (const auto* ex = dynamic_cast<const InvalidOperationException*>(&e)) {
+        std::cout << "[NOT ALLOWED] " << ex->what() << "\n";
     }
-    catch (const SportComplexException& e) {
-        std::cout << "[ERROR] " << e.what() << "\n";
+    else if (const auto* ex = dynamic_cast<const SportComplexException*>(&e)) {
+        std::cout << "[ERROR] " << ex->what() << "\n";
     }
-    catch (const std::exception& e) {
+    else {
         std::cout << "[UNEXPECTED ERROR] " << e.what() << "\n";
     }
 }
@@ -161,8 +158,12 @@ void SportComplex::create_and_add_facility() {
         *this += std::move(newFacility);
         std::cout << "Facility successfully added to complex!\n";
     }
-    catch (const std::exception&) {
-        report_current_exception();
+    catch (const SportComplexException& e) {
+        report_current_exception(e);
+        std::cout << "Facility was not added.\n";
+    }
+    catch (const std::exception& e) {
+        report_current_exception(e);
         std::cout << "Facility was not added.\n";
     }
 }
@@ -200,8 +201,11 @@ void SportComplex::edit_facility_menu() {
             throw InvalidDataException("edit choice", "choose 1, 2 or 3 (got " + std::to_string(editChoice) + ")");
         }
     }
-    catch (const std::exception&) {
-        report_current_exception();
+    catch (const SportComplexException& e) {
+        report_current_exception(e);
+    }
+    catch (const std::exception& e) {
+        report_current_exception(e);
     }
 }
 
@@ -219,8 +223,11 @@ void SportComplex::add_coach_menu() {
 
         facility.add_coach(lastName, sport, maxGroup);
     }
-    catch (const std::exception&) {
-        report_current_exception();
+    catch (const SportComplexException& e) {
+        report_current_exception(e);
+    }
+    catch (const std::exception& e) {
+        report_current_exception(e);
     }
 }
 
@@ -239,8 +246,11 @@ void SportComplex::enroll_to_coach_menu() {
 
         facility.enroll_to_coach(coachName, people);
     }
-    catch (const std::exception&) {
-        report_current_exception();
+    catch (const SportComplexException& e) {
+        report_current_exception(e);
+    }
+    catch (const std::exception& e) {
+        report_current_exception(e);
     }
 }
 
@@ -252,8 +262,11 @@ void SportComplex::show_facility_by_index_menu() const {
         if (number == 0) return;
         std::cout << "\n" << facility_at(number);
     }
-    catch (const std::exception&) {
-        report_current_exception();
+    catch (const SportComplexException& e) {
+        report_current_exception(e);
+    }
+    catch (const std::exception& e) {
+        report_current_exception(e);
     }
 }
 
@@ -263,12 +276,15 @@ void SportComplex::remove_facility_by_index_menu() {
         if (halls.empty()) return;
         std::size_t number = read_number("Enter facility number to remove (or 0 to cancel): ", "facility number");
         if (number == 0) return;
-        facility_at(number); 
+        facility_at(number);
         halls.remove(number - 1);
         std::cout << "Facility successfully removed!\n";
     }
-    catch (const std::exception&) {
-        report_current_exception();
+    catch (const SportComplexException& e) {
+        report_current_exception(e);
+    }
+    catch (const std::exception& e) {
+        report_current_exception(e);
     }
 }
 
@@ -287,8 +303,11 @@ void SportComplex::clear_facilities_menu() {
             std::cout << "Cancelled.\n";
         }
     }
-    catch (const std::exception&) {
-        report_current_exception();
+    catch (const SportComplexException& e) {
+        report_current_exception(e);
+    }
+    catch (const std::exception& e) {
+        report_current_exception(e);
     }
 }
 
@@ -350,8 +369,11 @@ void SportComplex::search_facilities_menu() const {
             halls.get(found.get(i))->print_short_info();
         }
     }
-    catch (const std::exception&) {
-        report_current_exception();
+    catch (const SportComplexException& e) {
+        report_current_exception(e);
+    }
+    catch (const std::exception& e) {
+        report_current_exception(e);
     }
 }
 
@@ -407,8 +429,11 @@ void SportComplex::search_coaches_menu() const {
             throw InvalidDataException("search choice", "choose 1-3 (got " + std::to_string(choice) + ")");
         }
     }
-    catch (const std::exception&) {
-        report_current_exception();
+    catch (const SportComplexException& e) {
+        report_current_exception(e);
+    }
+    catch (const std::exception& e) {
+        report_current_exception(e);
     }
 }
 
@@ -426,8 +451,11 @@ void SportComplex::show_coach_by_index_menu() const {
         std::size_t coachNumber = read_number("Enter coach number: ", "coach number");
         std::cout << facility.get_coach_at(coachNumber) << "\n";
     }
-    catch (const std::exception&) {
-        report_current_exception();
+    catch (const SportComplexException& e) {
+        report_current_exception(e);
+    }
+    catch (const std::exception& e) {
+        report_current_exception(e);
     }
 }
 
@@ -460,8 +488,11 @@ void SportComplex::remove_coach_menu() {
             throw InvalidDataException("remove choice", "choose 1-3 (got " + std::to_string(choice) + ")");
         }
     }
-    catch (const std::exception&) {
-        report_current_exception();
+    catch (const SportComplexException& e) {
+        report_current_exception(e);
+    }
+    catch (const std::exception& e) {
+        report_current_exception(e);
     }
 }
 
@@ -508,8 +539,11 @@ void SportComplex::manage_sports_menu() {
             throw InvalidDataException("sports choice", "choose 1-5 (got " + std::to_string(choice) + ")");
         }
     }
-    catch (const std::exception&) {
-        report_current_exception();
+    catch (const SportComplexException& e) {
+        report_current_exception(e);
+    }
+    catch (const std::exception& e) {
+        report_current_exception(e);
     }
 }
 

@@ -4,6 +4,7 @@
 #include <string_view>
 #include <vector>
 #include <memory>
+#include <stdexcept>
 #include "Facility.h"
 #include "Collection.h"
 
@@ -15,7 +16,7 @@ private:
 
     Facility& facility_at(std::size_t number);
     const Facility& facility_at(std::size_t number) const;
-    void ensure_name_unique(const std::string& name) const;
+    void ensure_name_unique(std::string_view name) const;
 
 public:
     explicit SportComplex(std::string_view name);
@@ -41,5 +42,5 @@ public:
     SportComplex& operator+=(std::unique_ptr<Facility> f);
     SportComplex& operator--();
 
-    void report_current_exception() const;
+    void report_current_exception(const std::exception& e) const;
 };

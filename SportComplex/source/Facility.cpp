@@ -38,8 +38,7 @@ void Facility::remove_sport(std::size_t number) {
         throw IndexOutOfRangeException("Sport", number, sports.get_size());
     }
     const std::string sportName = sports.get(number - 1);
-    const Coach* user = coaches.find_if([&sportName](const Coach& c) { return c.get_sport() == sportName; });
-    if (user != nullptr) {
+    if (const Coach* user = coaches.find_if([&sportName](const Coach& c) { return c.get_sport() == sportName; }); user != nullptr) {
         throw BrokenRelationException("coach " + std::string(user->get_last_name()) +
             " works in sport '" + sportName + "' of facility '" + name + "'.");
     }
@@ -96,8 +95,7 @@ void Facility::set_capacity(int newCap) {
     if (newCap <= 0) {
         throw InvalidDataException("capacity", "must be greater than 0 (got " + std::to_string(newCap) + ")");
     }
-    const Coach* tooBig = coaches.find_if([newCap](const Coach& c) { return c.get_max_group_size() > newCap; });
-    if (tooBig != nullptr) {
+    if (const Coach* tooBig = coaches.find_if([newCap](const Coach& c) { return c.get_max_group_size() > newCap; }); tooBig != nullptr) {
         throw ConstraintViolationException("capacity",
             "Capacity " + std::to_string(newCap) + " is less than the group size of coach " +
             std::string(tooBig->get_last_name()) + " (" + std::to_string(tooBig->get_max_group_size()) + ").");
@@ -117,7 +115,7 @@ void Facility::print_short_info() const {
 }
 
 void Facility::add_coach(std::string_view lastName, std::string_view sport, int maxGroup) {
-    Coach newCoach(lastName, sport, maxGroup); 
+    Coach newCoach(lastName, sport, maxGroup);
     if (coaches.find_if([lastName](const Coach& c) { return c.get_last_name() == lastName; }) != nullptr) {
         throw DuplicateIdException("Coach", std::string(lastName), "facility '" + name + "'");
     }

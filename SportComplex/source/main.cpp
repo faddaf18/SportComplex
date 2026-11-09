@@ -1,12 +1,14 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <stdexcept>
 #include "SportComplex.h"
 #include "Gym.h"
 #include "SwimmingPool.h"
 #include "Stadium.h"
 #include "Collection.h"
 #include "Input.h"
+#include "SportComplexException.h"
 
 int main() {
     SportComplex complex("Student Complex");
@@ -30,9 +32,13 @@ int main() {
         stadium->add_coach("Williams", "Football", 20);
         complex += std::move(stadium);
     }
-    catch (const std::exception&) {
+    catch (const SportComplexException& e) {
         std::cout << "Initial data could not be loaded completely:\n";
-        complex.report_current_exception();
+        complex.report_current_exception(e);
+    }
+    catch (const std::exception& e) {
+        std::cout << "Initial data could not be loaded completely:\n";
+        complex.report_current_exception(e);
     }
 
     int choice = 0;
@@ -59,9 +65,15 @@ int main() {
         try {
             choice = input::read_int("Your choice: ", "menu choice");
         }
-        catch (const std::exception&) {
-            complex.report_current_exception();
-            if (std::cin.eof()) break; 
+        catch (const SportComplexException& e) {
+            complex.report_current_exception(e);
+            if (std::cin.eof()) break;
+            choice = -1;
+            continue;
+        }
+        catch (const std::exception& e) {
+            complex.report_current_exception(e);
+            if (std::cin.eof()) break;
             choice = -1;
             continue;
         }
@@ -127,8 +139,11 @@ int main() {
                 std::cout << "Invalid menu option.\n";
             }
         }
-        catch (const std::exception&) {
-            complex.report_current_exception();
+        catch (const SportComplexException& e) {
+            complex.report_current_exception(e);
+        }
+        catch (const std::exception& e) {
+            complex.report_current_exception(e);
         }
     } while (choice != 0);
 
