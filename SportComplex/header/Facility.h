@@ -2,8 +2,6 @@
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <array>
-#include <vector>
 #include "Coach.h"
 #include "Collection.h"
 
@@ -22,19 +20,21 @@ public:
 
     void add_sport(std::string_view sportName);
     bool has_sport(std::string_view sportName) const;
-    bool remove_sport(std::size_t index);
-    void clear_sports() { sports.clear(); }
+    void remove_sport(std::size_t number);
+    void clear_sports();
+    const std::string& get_sport_at(std::size_t number) const;
     const Collection<std::string>& get_sports() const { return sports; }
     void clear_and_reset_sports();
     void set_capacity(int newCap);
     void set_name(std::string_view newName);
     void print_short_info() const;
 
-    bool add_coach(std::string_view lastName, std::string_view sport, int maxGroup);
-    bool enroll_to_coach(std::string_view coachLastName, int people);
-    bool remove_coach(std::string_view lastName);
-    bool remove_coach_at(std::size_t index);
+    void add_coach(std::string_view lastName, std::string_view sport, int maxGroup);
+    void enroll_to_coach(std::string_view coachLastName, int people);
+    void remove_coach(std::string_view lastName);
+    void remove_coach_at(std::size_t number);
     void clear_coaches();
+    const Coach& get_coach_at(std::size_t number) const;
     const Collection<Coach>& get_coaches() const { return coaches; }
     void show_coaches() const;
 

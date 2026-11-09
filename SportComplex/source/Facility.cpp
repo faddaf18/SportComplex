@@ -1,51 +1,114 @@
 #include "Facility.h"
+#include "Input.h"
+#include "InvalidDataException.h"
+#include "DuplicateIdException.h"
+#include "ConstraintViolationException.h"
+#include "BrokenRelationException.h"
+#include "InvalidOperationException.h"
+#include "IndexOutOfRangeException.h"
+#include "ObjectNotFoundException.h"
 
 Facility::Facility(std::string_view n, int cap) : name(n) {
+    if (n.empty()) {
+        throw InvalidDataException("facility name", "must not be empty");
+    }
     set_capacity(cap);
 }
 
 void Facility::add_sport(std::string_view sportName) {
-    if (static_cast<int>(sports.get_size()) < SPORTS_COUNT) {
-        sports.add(std::string(sportName));
+    if (sportName.empty()) {
+        throw InvalidDataException("sport", "name must not be empty");
     }
-    else {
-        std::cout << "Sports limit reached for this facility (max 3).\n";
+    if (has_sport(sportName)) {
+        throw DuplicateIdException("Sport", std::string(sportName), "facility '" + name + "'");
     }
+    if (static_cast<int>(sports.get_size()) >= SPORTS_COUNT) {
+        throw ConstraintViolationException("sports limit",
+            "Sports limit reached for facility '" + name + "' (max " + std::to_string(SPORTS_COUNT) + ").");
+    }
+    sports.add(std::string(sportName));
 }
 
 bool Facility::has_sport(std::string_view sportName) const {
     return sports.find_if([sportName](const std::string& s) { return s == sportName; }) != nullptr;
 }
 
-bool Facility::remove_sport(std::size_t index) {
-    return sports.remove(index);
+void Facility::remove_sport(std::size_t number) {
+    if (number == 0 || number > sports.get_size()) {
+        throw IndexOutOfRangeException("Sport", number, sports.get_size());
+    }
+    const std::string sportName = sports.get(number - 1);
+    const Coach* user = coaches.find_if([&sportName](const Coach& c) { return c.get_sport() == sportName; });
+    if (user != nullptr) {
+        throw BrokenRelationException("coach " + std::string(user->get_last_name()) +
+            " works in sport '" + sportName + "' of facility '" + name + "'.");
+    }
+    sports.remove(number - 1);
+}
+
+void Facility::clear_sports() {
+    if (sports.empty()) {
+        throw InvalidOperationException("facility '" + name + "' has no sports to remove.");
+    }
+    if (!coaches.empty()) {
+        throw BrokenRelationException("facility '" + name + "' still has " +
+            std::to_string(coaches.get_size()) + " coach(es) linked to its sports.");
+    }
+    sports.clear();
+}
+
+const std::string& Facility::get_sport_at(std::size_t number) const {
+    if (number == 0 || number > sports.get_size()) {
+        throw IndexOutOfRangeException("Sport", number, sports.get_size());
+    }
+    return sports.get(number - 1);
 }
 
 void Facility::clear_and_reset_sports() {
-    sports.clear();
-    std::cout << "How many sports will be available (1 to 3)? ";
-    int sCount = 0;
-    std::cin >> sCount;
-    std::cin.ignore();
-    for (int i = 0; i < sCount && i < SPORTS_COUNT; i++) {
-        std::string sport;
-        std::cout << "Enter sport #" << (i + 1) << ": ";
-        std::getline(std::cin, sport);
-        add_sport(sport);
+    int sCount = input::read_int("How many sports will be available (1 to 3)? ", "sports count");
+    if (sCount < 1 || sCount > SPORTS_COUNT) {
+        throw InvalidDataException("sports count", "must be between 1 and " + std::to_string(SPORTS_COUNT) +
+            " (got " + std::to_string(sCount) + ")");
     }
+
+    Collection<std::string> newSports;
+    for (int i = 0; i < sCount; i++) {
+        std::string sport = input::read_line("Enter sport #" + std::to_string(i + 1) + ": ", "sport");
+        if (sport.empty()) {
+            throw InvalidDataException("sport", "name must not be empty");
+        }
+        if (newSports.find_if([&sport](const std::string_view& s) { return s == sport; }) != nullptr) {
+            throw DuplicateIdException("Sport", sport, "the new sports list");
+        }
+        newSports.add(sport);
+    }
+    for (const auto& coach : coaches) {
+        const std::string coachSport(coach.get_sport());
+        if (newSports.find_if([&coachSport](const std::string_view& s) { return s == coachSport; }) == nullptr) {
+            throw BrokenRelationException("coach " + std::string(coach.get_last_name()) +
+                " works in sport '" + coachSport + "' which is absent from the new list.");
+        }
+    }
+    sports = std::move(newSports);
 }
 
 void Facility::set_capacity(int newCap) {
-    if (newCap > 0) {
-        capacity = newCap;
+    if (newCap <= 0) {
+        throw InvalidDataException("capacity", "must be greater than 0 (got " + std::to_string(newCap) + ")");
     }
-    else {
-        std::cout << "Error: Capacity must be greater than 0! Default value set: 10.\n";
-        capacity = 10;
+    const Coach* tooBig = coaches.find_if([newCap](const Coach& c) { return c.get_max_group_size() > newCap; });
+    if (tooBig != nullptr) {
+        throw ConstraintViolationException("capacity",
+            "Capacity " + std::to_string(newCap) + " is less than the group size of coach " +
+            std::string(tooBig->get_last_name()) + " (" + std::to_string(tooBig->get_max_group_size()) + ").");
     }
+    capacity = newCap;
 }
 
 void Facility::set_name(std::string_view newName) {
+    if (newName.empty()) {
+        throw InvalidDataException("facility name", "must not be empty");
+    }
     name = newName;
 }
 
@@ -53,65 +116,69 @@ void Facility::print_short_info() const {
     std::cout << "Facility: " << name << " (" << get_type_name() << ") | Capacity: " << capacity << " people\n";
 }
 
-bool Facility::add_coach(std::string_view lastName, std::string_view sport, int maxGroup) {
+void Facility::add_coach(std::string_view lastName, std::string_view sport, int maxGroup) {
+    Coach newCoach(lastName, sport, maxGroup); 
+    if (coaches.find_if([lastName](const Coach& c) { return c.get_last_name() == lastName; }) != nullptr) {
+        throw DuplicateIdException("Coach", std::string(lastName), "facility '" + name + "'");
+    }
     if (!has_sport(sport)) {
-        std::cout << "-> ERROR: Facility '" << name << "' does not support sport: " << sport << "!\n";
-        return false;
+        throw BrokenRelationException("facility '" + name + "' does not support sport '" +
+            std::string(sport) + "', so coach " + std::string(lastName) + " cannot be linked to it.");
     }
     if (maxGroup > capacity) {
-        std::cout << "-> ERROR: Coach group size (" << maxGroup << ") exceeds facility capacity (" << capacity << ")!\n";
-        return false;
+        throw ConstraintViolationException("facility capacity",
+            "Coach group size (" + std::to_string(maxGroup) + ") exceeds facility capacity (" +
+            std::to_string(capacity) + ").");
     }
-    coaches.add(Coach(lastName, sport, maxGroup));
+    coaches.add(std::move(newCoach));
     std::cout << "-> SUCCESS: Coach " << lastName << " (" << sport << ") added to " << name << ".\n";
-    return true;
 }
 
-bool Facility::enroll_to_coach(std::string_view coachLastName, int people) {
+void Facility::enroll_to_coach(std::string_view coachLastName, int people) {
     Coach* coach = coaches.find_if([coachLastName](const Coach& c) {
         return c.get_last_name() == coachLastName;
         });
     if (coach == nullptr) {
-        std::cout << "-> ERROR: Coach '" << coachLastName << "' not found in facility '" << name << "'!\n";
-        return false;
+        throw ObjectNotFoundException("Coach", std::string(coachLastName), "facility '" + name + "'");
     }
-    if (coach->enroll(people)) {
-        std::cout << "-> SUCCESS: Enrolled " << people << " athletes to coach "
-            << coachLastName << ". Group status: "
-            << coach->get_current_group_size() << "/" << coach->get_max_group_size() << ".\n";
-        return true;
-    }
-    std::cout << "-> DENIED: Cannot enroll " << people << " athletes to coach "
-        << coachLastName << ". Exceeds max group limit ("
-        << coach->get_current_group_size() + people << "/" << coach->get_max_group_size() << ").\n";
-    return false;
+    coach->enroll(people);
+    std::cout << "-> SUCCESS: Enrolled " << people << " athletes to coach "
+        << coachLastName << ". Group status: "
+        << coach->get_current_group_size() << "/" << coach->get_max_group_size() << ".\n";
 }
 
-bool Facility::remove_coach(std::string_view lastName) {
+void Facility::remove_coach(std::string_view lastName) {
     auto index = coaches.find_index([lastName](const Coach& c) {
         return c.get_last_name() == lastName;
         });
     if (!index.has_value()) {
-        std::cout << "-> ERROR: Coach '" << lastName << "' not found in facility '" << name << "'!\n";
-        return false;
+        throw ObjectNotFoundException("Coach", std::string(lastName), "facility '" + name + "'");
     }
     coaches.remove(*index);
     std::cout << "-> SUCCESS: Coach " << lastName << " removed from " << name << ".\n";
-    return true;
 }
 
-bool Facility::remove_coach_at(std::size_t index) {
-    if (!coaches.remove(index)) {
-        std::cout << "-> ERROR: Invalid coach number in facility '" << name << "'!\n";
-        return false;
+void Facility::remove_coach_at(std::size_t number) {
+    if (number == 0 || number > coaches.get_size()) {
+        throw IndexOutOfRangeException("Coach", number, coaches.get_size());
     }
-    std::cout << "-> SUCCESS: Coach #" << index + 1 << " removed from " << name << ".\n";
-    return true;
+    coaches.remove(number - 1);
+    std::cout << "-> SUCCESS: Coach #" << number << " removed from " << name << ".\n";
 }
 
 void Facility::clear_coaches() {
+    if (coaches.empty()) {
+        throw InvalidOperationException("facility '" + name + "' has no coaches to remove.");
+    }
     coaches.clear();
     std::cout << "-> SUCCESS: All coaches removed from " << name << ".\n";
+}
+
+const Coach& Facility::get_coach_at(std::size_t number) const {
+    if (number == 0 || number > coaches.get_size()) {
+        throw IndexOutOfRangeException("Coach", number, coaches.get_size());
+    }
+    return coaches.get(number - 1);
 }
 
 void Facility::show_coaches() const {

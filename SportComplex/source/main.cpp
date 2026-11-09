@@ -6,27 +6,34 @@
 #include "SwimmingPool.h"
 #include "Stadium.h"
 #include "Collection.h"
+#include "Input.h"
 
 int main() {
     SportComplex complex("Student Complex");
 
-    auto gym = std::make_unique<Gym>("Power Gym", 30, 15);
-    gym->add_sport("Fitness");
-    gym->add_sport("Powerlifting");
-    gym->add_coach("Smith", "Fitness", 15);
-    complex += std::move(gym);
+    try {
+        auto gym = std::make_unique<Gym>("Power Gym", 30, 15);
+        gym->add_sport("Fitness");
+        gym->add_sport("Powerlifting");
+        gym->add_coach("Smith", "Fitness", 15);
+        complex += std::move(gym);
 
-    auto pool = std::make_unique<SwimmingPool>("Blue Wave", 50, 6);
-    pool->add_sport("Swimming");
-    pool->add_sport("Water Polo");
-    pool->add_coach("Johnson", "Swimming", 12);
-    complex += std::move(pool);
+        auto pool = std::make_unique<SwimmingPool>("Blue Wave", 50, 6);
+        pool->add_sport("Swimming");
+        pool->add_sport("Water Polo");
+        pool->add_coach("Johnson", "Swimming", 12);
+        complex += std::move(pool);
 
-    auto stadium = std::make_unique<Stadium>("Central Arena", 200, true);
-    stadium->add_sport("Football");
-    stadium->add_sport("Athletics");
-    stadium->add_coach("Williams", "Football", 20);
-    complex += std::move(stadium);
+        auto stadium = std::make_unique<Stadium>("Central Arena", 200, true);
+        stadium->add_sport("Football");
+        stadium->add_sport("Athletics");
+        stadium->add_coach("Williams", "Football", 20);
+        complex += std::move(stadium);
+    }
+    catch (const std::exception&) {
+        std::cout << "Initial data could not be loaded completely:\n";
+        complex.report_current_exception();
+    }
 
     int choice = 0;
     do {
@@ -49,67 +56,79 @@ int main() {
         std::cout << "16. Search coaches\n";
         std::cout << "17. Manage facility sports\n";
         std::cout << "0. Exit\n";
-        std::cout << "Your choice: ";
-        std::cin >> choice;
+        try {
+            choice = input::read_int("Your choice: ", "menu choice");
+        }
+        catch (const std::exception&) {
+            complex.report_current_exception();
+            if (std::cin.eof()) break; 
+            choice = -1;
+            continue;
+        }
 
-        switch (choice) {
-        case 1:
-            complex.show_all_short();
-            break;
-        case 2:
-            complex.show_all_full();
-            break;
-        case 3:
-            complex.add_coach_menu();
-            break;
-        case 4:
-            complex.enroll_to_coach_menu();
-            break;
-        case 5:
-            complex.edit_facility_menu();
-            break;
-        case 6:
-            complex.create_and_add_facility();
-            break;
-        case 7:
-            --complex;
-            std::cout << "Last facility removed.\n";
-            break;
-        case 8:
-            complex.show_specific_features(std::cout);
-            break;
-        case 9:
-            complex.show_facility_by_index_menu();
-            break;
-        case 10:
-            complex.remove_facility_by_index_menu();
-            break;
-        case 11:
-            complex.search_facilities_menu();
-            break;
-        case 12:
-            complex.show_statistics();
-            break;
-        case 13:
-            complex.clear_facilities_menu();
-            break;
-        case 14:
-            complex.show_coach_by_index_menu();
-            break;
-        case 15:
-            complex.remove_coach_menu();
-            break;
-        case 16:
-            complex.search_coaches_menu();
-            break;
-        case 17:
-            complex.manage_sports_menu();
-            break;
-        case 0:
-            std::cout << "Program terminated.\n";
-            break;
-        default:
-            std::cout << "Invalid menu option.\n";
+        try {
+            switch (choice) {
+            case 1:
+                complex.show_all_short();
+                break;
+            case 2:
+                complex.show_all_full();
+                break;
+            case 3:
+                complex.add_coach_menu();
+                break;
+            case 4:
+                complex.enroll_to_coach_menu();
+                break;
+            case 5:
+                complex.edit_facility_menu();
+                break;
+            case 6:
+                complex.create_and_add_facility();
+                break;
+            case 7:
+                --complex;
+                std::cout << "Last facility removed.\n";
+                break;
+            case 8:
+                complex.show_specific_features(std::cout);
+                break;
+            case 9:
+                complex.show_facility_by_index_menu();
+                break;
+            case 10:
+                complex.remove_facility_by_index_menu();
+                break;
+            case 11:
+                complex.search_facilities_menu();
+                break;
+            case 12:
+                complex.show_statistics();
+                break;
+            case 13:
+                complex.clear_facilities_menu();
+                break;
+            case 14:
+                complex.show_coach_by_index_menu();
+                break;
+            case 15:
+                complex.remove_coach_menu();
+                break;
+            case 16:
+                complex.search_coaches_menu();
+                break;
+            case 17:
+                complex.manage_sports_menu();
+                break;
+            case 0:
+                std::cout << "Program terminated.\n";
+                break;
+            default:
+                std::cout << "Invalid menu option.\n";
+            }
+        }
+        catch (const std::exception&) {
+            complex.report_current_exception();
         }
     } while (choice != 0);
 

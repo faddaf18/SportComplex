@@ -13,6 +13,10 @@ private:
     std::string complexName;
     Collection<std::unique_ptr<Facility>> halls;
 
+    Facility& facility_at(std::size_t number);
+    const Facility& facility_at(std::size_t number) const;
+    void ensure_name_unique(const std::string& name) const;
+
 public:
     explicit SportComplex(std::string_view name);
     void show_all_short() const;
@@ -36,4 +40,6 @@ public:
 
     SportComplex& operator+=(std::unique_ptr<Facility> f);
     SportComplex& operator--();
+
+    void report_current_exception() const;
 };

@@ -19,7 +19,7 @@ public:
     int get_max_group_size() const { return maxGroupSize; }
     int get_current_group_size() const { return currentGroupSize; }
 
-    bool enroll(int people);
+    void enroll(int people);
     void print_info(std::ostream& os = std::cout) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Coach& c) {
