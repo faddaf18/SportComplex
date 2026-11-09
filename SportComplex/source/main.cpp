@@ -1,7 +1,6 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <stdexcept>
 #include "SportComplex.h"
 #include "Gym.h"
 #include "SwimmingPool.h"
@@ -36,13 +35,9 @@ int main() {
         std::cout << "Initial data could not be loaded completely:\n";
         complex.report_current_exception(e);
     }
-    catch (const std::exception& e) {
-        std::cout << "Initial data could not be loaded completely:\n";
-        complex.report_current_exception(e);
-    }
 
-    int choice = 0;
-    do {
+    int choice = -1;
+    while (choice != 0) {
         std::cout << "\n=== COMPLEX MENU ===\n";
         std::cout << "1. Short info\n";
         std::cout << "2. Full info\n";
@@ -62,19 +57,22 @@ int main() {
         std::cout << "16. Search coaches\n";
         std::cout << "17. Manage facility sports\n";
         std::cout << "0. Exit\n";
+
         try {
             choice = input::read_int("Your choice: ", "menu choice");
+            if (std::cin.eof()) {
+                choice = 0;
+                break;
+            }
         }
         catch (const SportComplexException& e) {
             complex.report_current_exception(e);
-            if (std::cin.eof()) break;
-            choice = -1;
-            continue;
-        }
-        catch (const std::exception& e) {
-            complex.report_current_exception(e);
-            if (std::cin.eof()) break;
-            choice = -1;
+            if (std::cin.eof()) {
+                choice = 0;
+            }
+            else {
+                choice = -1;
+            }
             continue;
         }
 
@@ -142,10 +140,7 @@ int main() {
         catch (const SportComplexException& e) {
             complex.report_current_exception(e);
         }
-        catch (const std::exception& e) {
-            complex.report_current_exception(e);
-        }
-    } while (choice != 0);
+    }
 
     return 0;
 }

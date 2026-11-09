@@ -12,6 +12,7 @@
 #include "IndexOutOfRangeException.h"
 #include "BrokenRelationException.h"
 #include "Input.h"
+#include <format>
 
 using input::read_int;
 using input::read_line;
@@ -46,45 +47,45 @@ void SportComplex::ensure_name_unique(std::string_view name) const {
         return f->get_name() == name;
         });
     if (same != nullptr) {
-        throw DuplicateIdException("Facility", std::string(name), "complex '" + complexName + "'");
+        throw DuplicateIdException("Facility", std::string(name), std::format("complex '{}'", complexName));
     }
 }
 
 void SportComplex::report_current_exception(const std::exception& e) const {
-    if (const auto* ex = dynamic_cast<const InvalidDataException*>(&e)) {
-        std::cout << "[INVALID DATA] " << ex->what() << "\n"
-            << "Check the value of '" << ex->get_field() << "' and try again.\n";
+    if (const auto* ex1 = dynamic_cast<const InvalidDataException*>(&e)) {
+        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n",
+            ex1->what(), ex1->get_field());
     }
-    else if (const auto* ex = dynamic_cast<const ObjectNotFoundException*>(&e)) {
-        std::cout << "[NOT FOUND] " << ex->what() << "\n";
-        std::cout << "Check the spelling of '" << ex->get_key() << "' (the name is case-sensitive).\n";
+    else if (const auto* ex2 = dynamic_cast<const ObjectNotFoundException*>(&e)) {
+        std::cout << std::format("[NOT FOUND] {}\nCheck the spelling of '{}' (the name is case-sensitive).\n",
+            ex2->what(), ex2->get_key());
     }
-    else if (const auto* ex = dynamic_cast<const DuplicateIdException*>(&e)) {
-        std::cout << "[DUPLICATE] " << ex->what() << "\n"
-            << "Identifiers must be unique: choose a name other than '" << ex->get_id() << "'.\n";
+    else if (const auto* ex3 = dynamic_cast<const DuplicateIdException*>(&e)) {
+        std::cout << std::format("[DUPLICATE] {}\nIdentifiers must be unique: choose a name other than '{}'.\n",
+            ex3->what(), ex3->get_id());
     }
-    else if (const auto* ex = dynamic_cast<const ConstraintViolationException*>(&e)) {
-        std::cout << "[LIMIT VIOLATED] " << ex->what() << "\n"
-            << "Violated constraint: " << ex->get_constraint() << ". Nothing was changed.\n";
+    else if (const auto* ex4 = dynamic_cast<const ConstraintViolationException*>(&e)) {
+        std::cout << std::format("[LIMIT VIOLATED] {}\nViolated constraint: {}. Nothing was changed.\n",
+            ex4->what(), ex4->get_constraint());
     }
-    else if (const auto* ex = dynamic_cast<const IndexOutOfRangeException*>(&e)) {
-        std::cout << "[OUT OF RANGE] " << ex->what() << "\n";
-        if (ex->get_count() > 0) {
-            std::cout << "Enter a number between 1 and " << ex->get_count() << ".\n";
+    else if (const auto* ex5 = dynamic_cast<const IndexOutOfRangeException*>(&e)) {
+        std::cout << std::format("[OUT OF RANGE] {}\n", ex5->what());
+        if (ex5->get_count() > 0) {
+            std::cout << std::format("Enter a number between 1 and {}.\n", ex5->get_count());
         }
     }
-    else if (const auto* ex = dynamic_cast<const BrokenRelationException*>(&e)) {
-        std::cout << "[BROKEN LINK] " << ex->what() << "\n"
-            << "The operation was cancelled, existing data is intact.\n";
+    else if (const auto* ex6 = dynamic_cast<const BrokenRelationException*>(&e)) {
+        std::cout << std::format("[BROKEN LINK] {}\nThe operation was cancelled, existing data is intact.\n",
+            ex6->what());
     }
-    else if (const auto* ex = dynamic_cast<const InvalidOperationException*>(&e)) {
-        std::cout << "[NOT ALLOWED] " << ex->what() << "\n";
+    else if (const auto* ex7 = dynamic_cast<const InvalidOperationException*>(&e)) {
+        std::cout << std::format("[NOT ALLOWED] {}\n", ex7->what());
     }
-    else if (const auto* ex = dynamic_cast<const SportComplexException*>(&e)) {
-        std::cout << "[ERROR] " << ex->what() << "\n";
+    else if (const auto* ex8 = dynamic_cast<const SportComplexException*>(&e)) {
+        std::cout << std::format("[ERROR] {}\n", ex8->what());
     }
     else {
-        std::cout << "[UNEXPECTED ERROR] " << e.what() << "\n";
+        std::cout << std::format("[UNEXPECTED ERROR] {}\n", e.what());
     }
 }
 
@@ -93,7 +94,7 @@ void SportComplex::show_all_short() const {
         std::cout << "No facilities in the complex.\n";
         return;
     }
-    std::cout << "\n=== Facilities List ('" << complexName << "') ===\n";
+    std::cout << std::format("\n=== Facilities List ('{}') ===\n", complexName);
     for (std::size_t i = 0; i < halls.get_size(); i++) {
         std::cout << i + 1 << ". ";
         halls.get(i)->print_short_info();
@@ -128,16 +129,13 @@ void SportComplex::create_and_add_facility() {
     try {
         if (halls.get_size() >= MAX_FACILITIES) {
             throw ConstraintViolationException("max facilities",
-                "Cannot add more facilities, limit reached (" + std::to_string(MAX_FACILITIES) + ").");
+                std::format("Cannot add more facilities, limit reached ({}).", MAX_FACILITIES));
         }
 
-        std::cout << "Select facility type:\n";
-        std::cout << "1. Gym\n";
-        std::cout << "2. Swimming Pool\n";
-        std::cout << "3. Stadium\n";
+        std::cout << "Select facility type:\n1. Gym\n2. Swimming Pool\n3. Stadium\n";
         int typeChoice = read_int("Choice: ", "facility type");
         if (typeChoice < 1 || typeChoice > 3) {
-            throw InvalidDataException("facility type", "choose 1, 2 or 3 (got " + std::to_string(typeChoice) + ")");
+            throw InvalidDataException("facility type", std::format("choose 1, 2 or 3 (got {})", typeChoice));
         }
 
         std::string name = read_line("Enter name: ", "facility name");
@@ -148,10 +146,10 @@ void SportComplex::create_and_add_facility() {
 
         int sCount = read_int("How many sports to add (0 to 3)? ", "sports count");
         if (sCount < 0 || sCount > 3) {
-            throw InvalidDataException("sports count", "must be between 0 and 3 (got " + std::to_string(sCount) + ")");
+            throw InvalidDataException("sports count", std::format("must be between 0 and 3 (got {})", sCount));
         }
         for (int i = 0; i < sCount; ++i) {
-            std::string sport = read_line("Sport #" + std::to_string(i + 1) + ": ", "sport");
+            std::string sport = read_line(std::format("Sport #{}: ", i + 1), "sport");
             newFacility->add_sport(sport);
         }
 
@@ -159,10 +157,6 @@ void SportComplex::create_and_add_facility() {
         std::cout << "Facility successfully added to complex!\n";
     }
     catch (const SportComplexException& e) {
-        report_current_exception(e);
-        std::cout << "Facility was not added.\n";
-    }
-    catch (const std::exception& e) {
         report_current_exception(e);
         std::cout << "Facility was not added.\n";
     }
@@ -176,9 +170,7 @@ void SportComplex::edit_facility_menu() {
         if (number == 0) return;
         Facility& facility = facility_at(number);
 
-        std::cout << "1. Change name\n";
-        std::cout << "2. Change capacity\n";
-        std::cout << "3. Change sports\n";
+        std::cout << "1. Change name\n2. Change capacity\n3. Change sports\n";
         int editChoice = read_int("Choice: ", "edit choice");
         if (editChoice == 1) {
             std::string newName = read_line("Enter new name: ", "facility name");
@@ -198,13 +190,10 @@ void SportComplex::edit_facility_menu() {
             std::cout << "Sports successfully updated!\n";
         }
         else {
-            throw InvalidDataException("edit choice", "choose 1, 2 or 3 (got " + std::to_string(editChoice) + ")");
+            throw InvalidDataException("edit choice", std::format("choose 1, 2 or 3 (got {})", editChoice));
         }
     }
     catch (const SportComplexException& e) {
-        report_current_exception(e);
-    }
-    catch (const std::exception& e) {
         report_current_exception(e);
     }
 }
@@ -224,9 +213,6 @@ void SportComplex::add_coach_menu() {
         facility.add_coach(lastName, sport, maxGroup);
     }
     catch (const SportComplexException& e) {
-        report_current_exception(e);
-    }
-    catch (const std::exception& e) {
         report_current_exception(e);
     }
 }
@@ -249,9 +235,6 @@ void SportComplex::enroll_to_coach_menu() {
     catch (const SportComplexException& e) {
         report_current_exception(e);
     }
-    catch (const std::exception& e) {
-        report_current_exception(e);
-    }
 }
 
 void SportComplex::show_facility_by_index_menu() const {
@@ -263,9 +246,6 @@ void SportComplex::show_facility_by_index_menu() const {
         std::cout << "\n" << facility_at(number);
     }
     catch (const SportComplexException& e) {
-        report_current_exception(e);
-    }
-    catch (const std::exception& e) {
         report_current_exception(e);
     }
 }
@@ -283,30 +263,24 @@ void SportComplex::remove_facility_by_index_menu() {
     catch (const SportComplexException& e) {
         report_current_exception(e);
     }
-    catch (const std::exception& e) {
-        report_current_exception(e);
-    }
 }
 
 void SportComplex::clear_facilities_menu() {
     try {
         if (halls.empty()) {
-            throw InvalidOperationException("the complex '" + complexName + "' has no facilities to remove.");
+            throw InvalidOperationException(std::format("the complex '{}' has no facilities to remove.", complexName));
         }
-        std::string question = "Remove ALL " + std::to_string(halls.get_size()) + " facilities? (1 - Yes, 0 - No): ";
+        std::string question = std::format("Remove ALL {} facilities? (1 - Yes, 0 - No): ", halls.get_size());
         int confirm = read_int(question, "confirmation");
         if (confirm == 1) {
             halls.clear();
-            std::cout << "Complex cleared. Facilities count: " << halls.get_size() << "\n";
+            std::cout << std::format("Complex cleared. Facilities count: {}\n", halls.get_size());
         }
         else {
             std::cout << "Cancelled.\n";
         }
     }
     catch (const SportComplexException& e) {
-        report_current_exception(e);
-    }
-    catch (const std::exception& e) {
         report_current_exception(e);
     }
 }
@@ -317,10 +291,7 @@ void SportComplex::search_facilities_menu() const {
             std::cout << "No facilities in the complex.\n";
             return;
         }
-        std::cout << "1. Find facilities by name (part of name)\n";
-        std::cout << "2. Find facilities by sport\n";
-        std::cout << "3. Find facilities with capacity >= N\n";
-        std::cout << "4. Find facilities by type (1 - Gym, 2 - Swimming Pool, 3 - Stadium)\n";
+        std::cout << "1. Find facilities by name\n2. Find facilities by sport\n3. Find facilities with capacity >= N\n4. Find facilities by type\n";
         int choice = read_int("Choice: ", "search choice");
 
         Collection<std::size_t> found;
@@ -345,7 +316,7 @@ void SportComplex::search_facilities_menu() const {
         else if (choice == 4) {
             int type = read_int("Type: ", "facility type");
             if (type < 1 || type > 3) {
-                throw InvalidDataException("facility type", "choose 1, 2 or 3 (got " + std::to_string(type) + ")");
+                throw InvalidDataException("facility type", std::format("choose 1, 2 or 3 (got {})", type));
             }
             found = select_indices(halls, [type](const std::unique_ptr<Facility>& f) {
                 switch (type) {
@@ -356,23 +327,20 @@ void SportComplex::search_facilities_menu() const {
                 });
         }
         else {
-            throw InvalidDataException("search choice", "choose 1-4 (got " + std::to_string(choice) + ")");
+            throw InvalidDataException("search choice", std::format("choose 1-4 (got {})", choice));
         }
 
         if (found.empty()) {
             std::cout << "Nothing found.\n";
             return;
         }
-        std::cout << "\nFound facilities: " << found.get_size() << "\n";
+        std::cout << std::format("\nFound facilities: {}\n", found.get_size());
         for (std::size_t i = 0; i < found.get_size(); ++i) {
             std::cout << found.get(i) + 1 << ". ";
             halls.get(found.get(i))->print_short_info();
         }
     }
     catch (const SportComplexException& e) {
-        report_current_exception(e);
-    }
-    catch (const std::exception& e) {
         report_current_exception(e);
     }
 }
@@ -383,9 +351,7 @@ void SportComplex::search_coaches_menu() const {
             std::cout << "No facilities in the complex.\n";
             return;
         }
-        std::cout << "1. Find coaches by sport\n";
-        std::cout << "2. Find coaches with max group size >= N\n";
-        std::cout << "3. Show coach with the largest current group\n";
+        std::cout << "1. Find coaches by sport\n2. Find coaches with max group size >= N\n3. Show coach with the largest current group\n";
         int choice = read_int("Choice: ", "search choice");
 
         if (choice == 1 || choice == 2) {
@@ -404,11 +370,11 @@ void SportComplex::search_coaches_menu() const {
                     ? filter_collection(hall->get_coaches(), [&sport](const Coach& c) { return c.get_sport() == sport; })
                     : filter_collection(hall->get_coaches(), [minGroup](const Coach& c) { return c.get_max_group_size() >= minGroup; });
                 if (!found.empty()) {
-                    std::cout << "[" << hall->get_name() << "]\n" << found;
+                    std::cout << std::format("[{}]\n{}", hall->get_name(), found);
                     total += found.get_size();
                 }
             }
-            std::cout << "Total coaches found: " << total << "\n";
+            std::cout << std::format("Total coaches found: {}\n", total);
         }
         else if (choice == 3) {
             Collection<Coach> all;
@@ -422,17 +388,14 @@ void SportComplex::search_coaches_menu() const {
                 std::cout << "No coaches in the complex.\n";
             }
             else {
-                std::cout << "Largest group: " << *best << "\n";
+                std::cout << std::format("Largest group: {}\n", *best);
             }
         }
         else {
-            throw InvalidDataException("search choice", "choose 1-3 (got " + std::to_string(choice) + ")");
+            throw InvalidDataException("search choice", std::format("choose 1-3 (got {})", choice));
         }
     }
     catch (const SportComplexException& e) {
-        report_current_exception(e);
-    }
-    catch (const std::exception& e) {
         report_current_exception(e);
     }
 }
@@ -445,16 +408,13 @@ void SportComplex::show_coach_by_index_menu() const {
         if (number == 0) return;
         const Facility& facility = facility_at(number);
 
-        std::cout << "\nCoaches in this facility (" << facility.get_coaches().get_size() << "):\n";
+        std::cout << std::format("\nCoaches in this facility ({}):\n", facility.get_coaches().get_size());
         facility.show_coaches();
         if (facility.get_coaches().empty()) return;
         std::size_t coachNumber = read_number("Enter coach number: ", "coach number");
         std::cout << facility.get_coach_at(coachNumber) << "\n";
     }
     catch (const SportComplexException& e) {
-        report_current_exception(e);
-    }
-    catch (const std::exception& e) {
         report_current_exception(e);
     }
 }
@@ -469,9 +429,7 @@ void SportComplex::remove_coach_menu() {
 
         std::cout << "\nCoaches in this facility:\n";
         facility.show_coaches();
-        std::cout << "1. Remove coach by number\n";
-        std::cout << "2. Remove coach by last name\n";
-        std::cout << "3. Remove all coaches (clear)\n";
+        std::cout << "1. Remove coach by number\n2. Remove coach by last name\n3. Remove all coaches (clear)\n";
         int choice = read_int("Choice: ", "remove choice");
         if (choice == 1) {
             std::size_t coachNumber = read_number("Enter coach number: ", "coach number");
@@ -485,13 +443,10 @@ void SportComplex::remove_coach_menu() {
             facility.clear_coaches();
         }
         else {
-            throw InvalidDataException("remove choice", "choose 1-3 (got " + std::to_string(choice) + ")");
+            throw InvalidDataException("remove choice", std::format("choose 1-3 (got {})", choice));
         }
     }
     catch (const SportComplexException& e) {
-        report_current_exception(e);
-    }
-    catch (const std::exception& e) {
         report_current_exception(e);
     }
 }
@@ -504,18 +459,14 @@ void SportComplex::manage_sports_menu() {
         if (number == 0) return;
         Facility& facility = facility_at(number);
 
-        std::cout << "\nSports of '" << facility.get_name() << "' (" << facility.get_sports().get_size() << "):\n"
-            << facility.get_sports();
-        std::cout << "1. Get sport by number\n";
-        std::cout << "2. Add sport\n";
-        std::cout << "3. Remove sport by number\n";
-        std::cout << "4. Check if sport is available\n";
-        std::cout << "5. Remove all sports (clear)\n";
+        std::cout << std::format("\nSports of '{}' ({}):\n{}",
+            facility.get_name(), facility.get_sports().get_size(), facility.get_sports());
+        std::cout << "1. Get sport by number\n2. Add sport\n3. Remove sport by number\n4. Check if sport is available\n5. Remove all sports (clear)\n";
         int choice = read_int("Choice: ", "sports choice");
 
         if (choice == 1) {
             std::size_t sportNumber = read_number("Enter sport number: ", "sport number");
-            std::cout << "Sport #" << sportNumber << ": " << facility.get_sport_at(sportNumber) << "\n";
+            std::cout << std::format("Sport #{}: {}\n", sportNumber, facility.get_sport_at(sportNumber));
         }
         else if (choice == 2) {
             std::string sport = read_line("Enter sport: ", "sport");
@@ -536,13 +487,10 @@ void SportComplex::manage_sports_menu() {
             std::cout << "All sports removed.\n";
         }
         else {
-            throw InvalidDataException("sports choice", "choose 1-5 (got " + std::to_string(choice) + ")");
+            throw InvalidDataException("sports choice", std::format("choose 1-5 (got {})", choice));
         }
     }
     catch (const SportComplexException& e) {
-        report_current_exception(e);
-    }
-    catch (const std::exception& e) {
         report_current_exception(e);
     }
 }
@@ -553,7 +501,7 @@ SportComplex& SportComplex::operator+=(std::unique_ptr<Facility> f) {
     }
     if (halls.get_size() >= MAX_FACILITIES) {
         throw ConstraintViolationException("max facilities",
-            "Limit reached (max " + std::to_string(MAX_FACILITIES) + " facilities) in '" + complexName + "'!");
+            std::format("Limit reached (max {} facilities) in '{}'!", MAX_FACILITIES, complexName));
     }
     ensure_name_unique(f->get_name());
     halls.add(std::move(f));
@@ -562,7 +510,7 @@ SportComplex& SportComplex::operator+=(std::unique_ptr<Facility> f) {
 
 SportComplex& SportComplex::operator--() {
     if (halls.empty()) {
-        throw InvalidOperationException("no facilities to remove in '" + complexName + "'!");
+        throw InvalidOperationException(std::format("no facilities to remove in '{}'!", complexName));
     }
     halls.remove(halls.get_size() - 1);
     return *this;
@@ -592,18 +540,16 @@ void SportComplex::show_statistics() const {
         return f->get_capacity();
         });
 
-    std::cout << "\n=== STATISTICS ('" << complexName << "') ===\n";
-    std::cout << "Facilities count (Collection<unique_ptr<Facility>>): " << halls.get_size() << "\n";
+    std::cout << std::format("\n=== STATISTICS ('{}') ===\n", complexName);
+    std::cout << std::format("Facilities count (Collection<unique_ptr<Facility>>): {}\n", halls.get_size());
     std::cout << "Facility names (Collection<string>):\n" << names;
-    std::cout << "Total max daily capacity (Collection<int>): " << totalDaily << " people\n";
-    std::cout << "Gyms: " << count_matching(halls, [](const std::unique_ptr<Facility>& f) {
-        return dynamic_cast<const Gym*>(f.get()) != nullptr; })
-        << ", Swimming pools: " << count_matching(halls, [](const std::unique_ptr<Facility>& f) {
-        return dynamic_cast<const SwimmingPool*>(f.get()) != nullptr; })
-        << ", Stadiums: " << count_matching(halls, [](const std::unique_ptr<Facility>& f) {
-        return dynamic_cast<const Stadium*>(f.get()) != nullptr; }) << "\n";
-    std::cout << "Largest facility by capacity: " << (*biggest)->get_name() << "\n";
-    std::cout << "All coaches (Collection<Coach>), total " << allCoaches.get_size() << ":\n" << allCoaches;
+    std::cout << std::format("Total max daily capacity (Collection<int>): {} people\n", totalDaily);
+    std::cout << std::format("Gyms: {}, Swimming pools: {}, Stadiums: {}\n",
+        count_matching(halls, [](const std::unique_ptr<Facility>& f) { return dynamic_cast<const Gym*>(f.get()) != nullptr; }),
+        count_matching(halls, [](const std::unique_ptr<Facility>& f) { return dynamic_cast<const SwimmingPool*>(f.get()) != nullptr; }),
+        count_matching(halls, [](const std::unique_ptr<Facility>& f) { return dynamic_cast<const Stadium*>(f.get()) != nullptr; }));
+    std::cout << std::format("Largest facility by capacity: {}\n", (*biggest)->get_name());
+    std::cout << std::format("All coaches (Collection<Coach>), total {}:\n{}", allCoaches.get_size(), allCoaches);
 }
 
 void SportComplex::show_specific_features(std::ostream& os) const {
@@ -614,16 +560,16 @@ void SportComplex::show_specific_features(std::ostream& os) const {
 
     os << "\n=== SPECIFIC FACILITY FEATURES ===\n";
     for (size_t i = 0; i < halls.get_size(); ++i) {
-        os << i + 1 << ". [" << halls[i]->get_name() << "] (" << halls[i]->get_type_name() << "):\n";
+        os << std::format("{}. [{}] ({}):\n", i + 1, halls[i]->get_name(), halls[i]->get_type_name());
 
         if (const auto* gym = dynamic_cast<const Gym*>(halls[i].get())) {
-            os << "   -> Required instructors for equipment: " << gym->calculate_required_instructors() << "\n";
+            os << std::format("   -> Required instructors for equipment: {}\n", gym->calculate_required_instructors());
         }
         else if (const auto* pool = dynamic_cast<const SwimmingPool*>(halls[i].get())) {
-            os << "   -> Required water volume: " << pool->calculate_water_volume() << " liters\n";
+            os << std::format("   -> Required water volume: {} liters\n", pool->calculate_water_volume());
         }
         else if (const auto* stadium = dynamic_cast<const Stadium*>(halls[i].get())) {
-            os << "   -> Maintenance cost: " << stadium->calculate_maintenance_cost() << " USD\n";
+            os << std::format("   -> Maintenance cost: {} USD\n", stadium->calculate_maintenance_cost());
         }
     }
     os << "==================================\n";

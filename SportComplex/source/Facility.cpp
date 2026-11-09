@@ -7,6 +7,7 @@
 #include "InvalidOperationException.h"
 #include "IndexOutOfRangeException.h"
 #include "ObjectNotFoundException.h"
+#include <format>
 
 Facility::Facility(std::string_view n, int cap) : name(n) {
     if (n.empty()) {
@@ -20,11 +21,11 @@ void Facility::add_sport(std::string_view sportName) {
         throw InvalidDataException("sport", "name must not be empty");
     }
     if (has_sport(sportName)) {
-        throw DuplicateIdException("Sport", std::string(sportName), "facility '" + name + "'");
+        throw DuplicateIdException("Sport", std::string(sportName), std::format("facility '{}'", name));
     }
     if (static_cast<int>(sports.get_size()) >= SPORTS_COUNT) {
         throw ConstraintViolationException("sports limit",
-            "Sports limit reached for facility '" + name + "' (max " + std::to_string(SPORTS_COUNT) + ").");
+            std::format("Sports limit reached for facility '{}' (max {}).", name, SPORTS_COUNT));
     }
     sports.add(std::string(sportName));
 }
@@ -39,19 +40,19 @@ void Facility::remove_sport(std::size_t number) {
     }
     const std::string sportName = sports.get(number - 1);
     if (const Coach* user = coaches.find_if([&sportName](const Coach& c) { return c.get_sport() == sportName; }); user != nullptr) {
-        throw BrokenRelationException("coach " + std::string(user->get_last_name()) +
-            " works in sport '" + sportName + "' of facility '" + name + "'.");
+        throw BrokenRelationException(std::format("coach {} works in sport '{}' of facility '{}'.",
+            user->get_last_name(), sportName, name));
     }
     sports.remove(number - 1);
 }
 
 void Facility::clear_sports() {
     if (sports.empty()) {
-        throw InvalidOperationException("facility '" + name + "' has no sports to remove.");
+        throw InvalidOperationException(std::format("facility '{}' has no sports to remove.", name));
     }
     if (!coaches.empty()) {
-        throw BrokenRelationException("facility '" + name + "' still has " +
-            std::to_string(coaches.get_size()) + " coach(es) linked to its sports.");
+        throw BrokenRelationException(std::format("facility '{}' still has {} coach(es) linked to its sports.",
+            name, coaches.get_size()));
     }
     sports.clear();
 }
@@ -66,13 +67,12 @@ const std::string& Facility::get_sport_at(std::size_t number) const {
 void Facility::clear_and_reset_sports() {
     int sCount = input::read_int("How many sports will be available (1 to 3)? ", "sports count");
     if (sCount < 1 || sCount > SPORTS_COUNT) {
-        throw InvalidDataException("sports count", "must be between 1 and " + std::to_string(SPORTS_COUNT) +
-            " (got " + std::to_string(sCount) + ")");
+        throw InvalidDataException("sports count", std::format("must be between 1 and {} (got {})", SPORTS_COUNT, sCount));
     }
 
     Collection<std::string> newSports;
     for (int i = 0; i < sCount; i++) {
-        std::string sport = input::read_line("Enter sport #" + std::to_string(i + 1) + ": ", "sport");
+        std::string sport = input::read_line(std::format("Enter sport #{}: ", i + 1), "sport");
         if (sport.empty()) {
             throw InvalidDataException("sport", "name must not be empty");
         }
@@ -84,8 +84,8 @@ void Facility::clear_and_reset_sports() {
     for (const auto& coach : coaches) {
         const std::string coachSport(coach.get_sport());
         if (newSports.find_if([&coachSport](const std::string_view& s) { return s == coachSport; }) == nullptr) {
-            throw BrokenRelationException("coach " + std::string(coach.get_last_name()) +
-                " works in sport '" + coachSport + "' which is absent from the new list.");
+            throw BrokenRelationException(std::format("coach {} works in sport '{}' which is absent from the new list.",
+                coach.get_last_name(), coachSport));
         }
     }
     sports = std::move(newSports);
@@ -93,12 +93,12 @@ void Facility::clear_and_reset_sports() {
 
 void Facility::set_capacity(int newCap) {
     if (newCap <= 0) {
-        throw InvalidDataException("capacity", "must be greater than 0 (got " + std::to_string(newCap) + ")");
+        throw InvalidDataException("capacity", std::format("must be greater than 0 (got {})", newCap));
     }
     if (const Coach* tooBig = coaches.find_if([newCap](const Coach& c) { return c.get_max_group_size() > newCap; }); tooBig != nullptr) {
         throw ConstraintViolationException("capacity",
-            "Capacity " + std::to_string(newCap) + " is less than the group size of coach " +
-            std::string(tooBig->get_last_name()) + " (" + std::to_string(tooBig->get_max_group_size()) + ").");
+            std::format("Capacity {} is less than the group size of coach {} ({}).",
+                newCap, tooBig->get_last_name(), tooBig->get_max_group_size()));
     }
     capacity = newCap;
 }
@@ -111,25 +111,24 @@ void Facility::set_name(std::string_view newName) {
 }
 
 void Facility::print_short_info() const {
-    std::cout << "Facility: " << name << " (" << get_type_name() << ") | Capacity: " << capacity << " people\n";
+    std::cout << std::format("Facility: {} ({}) | Capacity: {} people\n", name, get_type_name(), capacity);
 }
 
 void Facility::add_coach(std::string_view lastName, std::string_view sport, int maxGroup) {
     Coach newCoach(lastName, sport, maxGroup);
     if (coaches.find_if([lastName](const Coach& c) { return c.get_last_name() == lastName; }) != nullptr) {
-        throw DuplicateIdException("Coach", std::string(lastName), "facility '" + name + "'");
+        throw DuplicateIdException("Coach", std::string(lastName), std::format("facility '{}'", name));
     }
     if (!has_sport(sport)) {
-        throw BrokenRelationException("facility '" + name + "' does not support sport '" +
-            std::string(sport) + "', so coach " + std::string(lastName) + " cannot be linked to it.");
+        throw BrokenRelationException(std::format("facility '{}' does not support sport '{}', so coach {} cannot be linked to it.",
+            name, sport, lastName));
     }
     if (maxGroup > capacity) {
         throw ConstraintViolationException("facility capacity",
-            "Coach group size (" + std::to_string(maxGroup) + ") exceeds facility capacity (" +
-            std::to_string(capacity) + ").");
+            std::format("Coach group size ({}) exceeds facility capacity ({}).", maxGroup, capacity));
     }
     coaches.add(std::move(newCoach));
-    std::cout << "-> SUCCESS: Coach " << lastName << " (" << sport << ") added to " << name << ".\n";
+    std::cout << std::format("-> SUCCESS: Coach {} ({}) added to {}.\n", lastName, sport, name);
 }
 
 void Facility::enroll_to_coach(std::string_view coachLastName, int people) {
@@ -137,12 +136,11 @@ void Facility::enroll_to_coach(std::string_view coachLastName, int people) {
         return c.get_last_name() == coachLastName;
         });
     if (coach == nullptr) {
-        throw ObjectNotFoundException("Coach", std::string(coachLastName), "facility '" + name + "'");
+        throw ObjectNotFoundException("Coach", std::string(coachLastName), std::format("facility '{}'", name));
     }
     coach->enroll(people);
-    std::cout << "-> SUCCESS: Enrolled " << people << " athletes to coach "
-        << coachLastName << ". Group status: "
-        << coach->get_current_group_size() << "/" << coach->get_max_group_size() << ".\n";
+    std::cout << std::format("-> SUCCESS: Enrolled {} athletes to coach {}. Group status: {}/{}.\n",
+        people, coachLastName, coach->get_current_group_size(), coach->get_max_group_size());
 }
 
 void Facility::remove_coach(std::string_view lastName) {
@@ -150,10 +148,10 @@ void Facility::remove_coach(std::string_view lastName) {
         return c.get_last_name() == lastName;
         });
     if (!index.has_value()) {
-        throw ObjectNotFoundException("Coach", std::string(lastName), "facility '" + name + "'");
+        throw ObjectNotFoundException("Coach", std::string(lastName), std::format("facility '{}'", name));
     }
     coaches.remove(*index);
-    std::cout << "-> SUCCESS: Coach " << lastName << " removed from " << name << ".\n";
+    std::cout << std::format("-> SUCCESS: Coach {} removed from {}.\n", lastName, name);
 }
 
 void Facility::remove_coach_at(std::size_t number) {
@@ -161,15 +159,15 @@ void Facility::remove_coach_at(std::size_t number) {
         throw IndexOutOfRangeException("Coach", number, coaches.get_size());
     }
     coaches.remove(number - 1);
-    std::cout << "-> SUCCESS: Coach #" << number << " removed from " << name << ".\n";
+    std::cout << std::format("-> SUCCESS: Coach #{} removed from {}.\n", number, name);
 }
 
 void Facility::clear_coaches() {
     if (coaches.empty()) {
-        throw InvalidOperationException("facility '" + name + "' has no coaches to remove.");
+        throw InvalidOperationException(std::format("facility '{}' has no coaches to remove.", name));
     }
     coaches.clear();
-    std::cout << "-> SUCCESS: All coaches removed from " << name << ".\n";
+    std::cout << std::format("-> SUCCESS: All coaches removed from {}.\n", name);
 }
 
 const Coach& Facility::get_coach_at(std::size_t number) const {
@@ -192,11 +190,8 @@ void Facility::show_coaches() const {
 }
 
 void Facility::print_full_info(std::ostream& os) const {
-    os << "Facility: " << name
-        << "\nType: " << get_type_name()
-        << "\nCapacity: " << capacity << " people"
-        << "\nMax Daily Capacity: " << calculate_max_daily_capacity() << " people"
-        << "\nSports: ";
+    os << std::format("Facility: {}\nType: {}\nCapacity: {} people\nMax Daily Capacity: {} people\nSports: ",
+        name, get_type_name(), capacity, calculate_max_daily_capacity());
     if (sports.empty()) {
         os << "None";
     }
@@ -205,14 +200,14 @@ void Facility::print_full_info(std::ostream& os) const {
             os << sports.get(i) << (i + 1 < sports.get_size() ? ", " : "");
         }
     }
-    os << "\nCoaches (" << coaches.get_size() << "):\n";
+    os << std::format("\nCoaches ({}):\n", coaches.get_size());
     if (coaches.empty()) {
         os << "  None\n";
     }
     else {
         for (const auto& c : coaches) {
-            os << "  - " << c.get_last_name() << " (" << c.get_sport()
-                << ", Group: " << c.get_current_group_size() << "/" << c.get_max_group_size() << ")\n";
+            os << std::format("  - {} ({}, Group: {}/{})\n",
+                c.get_last_name(), c.get_sport(), c.get_current_group_size(), c.get_max_group_size());
         }
     }
 }

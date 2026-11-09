@@ -2,6 +2,7 @@
 #include "InvalidDataException.h"
 #include "ConstraintViolationException.h"
 #include <iostream>
+#include <format>
 
 Coach::Coach(std::string_view name, std::string_view s, int maxGroup)
     : lastName(name), sport(s), maxGroupSize(maxGroup) {
@@ -12,19 +13,18 @@ Coach::Coach(std::string_view name, std::string_view s, int maxGroup)
         throw InvalidDataException("coach sport", "must not be empty");
     }
     if (maxGroup <= 0) {
-        throw InvalidDataException("coach max group size", "must be greater than 0 (got " + std::to_string(maxGroup) + ")");
+        throw InvalidDataException("coach max group size", std::format("must be greater than 0 (got {})", maxGroup));
     }
 }
 
 void Coach::enroll(int people) {
     if (people <= 0) {
-        throw InvalidDataException("number of athletes", "must be greater than 0 (got " + std::to_string(people) + ")");
+        throw InvalidDataException("number of athletes", std::format("must be greater than 0 (got {})", people));
     }
     if (currentGroupSize + people > maxGroupSize) {
         throw ConstraintViolationException("max group size",
-            "Cannot enroll " + std::to_string(people) + " athletes to coach " + lastName +
-            ". Exceeds max group limit (" + std::to_string(currentGroupSize + people) + "/" +
-            std::to_string(maxGroupSize) + ").");
+            std::format("Cannot enroll {} athletes to coach {}. Exceeds max group limit ({}/{}).",
+                people, lastName, currentGroupSize + people, maxGroupSize));
     }
     currentGroupSize += people;
 }
