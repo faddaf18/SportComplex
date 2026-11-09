@@ -18,7 +18,7 @@ using input::read_int;
 using input::read_line;
 using input::read_number;
 
-static bool name_contains(const std::string& name, const std::string& part) {
+static bool name_contains(const std::string_view& name, const std::string_view& part) {
 #ifdef __cpp_lib_string_contains
     return name.contains(part);
 #else
