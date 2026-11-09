@@ -3,6 +3,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include <format>
 #include "InvalidDataException.h"
 
 namespace input {
@@ -29,7 +30,7 @@ namespace input {
     inline std::size_t read_number(const std::string& prompt, const std::string& field) {
         int value = read_int(prompt, field);
         if (value < 0) {
-            throw InvalidDataException(field, "must not be negative (got " + std::to_string(value) + ")");
+            throw InvalidDataException(field, std::format("must not be negative (got {})", value));
         }
         return static_cast<std::size_t>(value);
     }
@@ -43,4 +44,3 @@ namespace input {
         return line;
     }
 }
-

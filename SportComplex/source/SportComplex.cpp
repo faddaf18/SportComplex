@@ -370,7 +370,8 @@ void SportComplex::search_coaches_menu() const {
                     ? filter_collection(hall->get_coaches(), [&sport](const Coach& c) { return c.get_sport() == sport; })
                     : filter_collection(hall->get_coaches(), [minGroup](const Coach& c) { return c.get_max_group_size() >= minGroup; });
                 if (!found.empty()) {
-                    std::cout << std::format("[{}]\n{}", hall->get_name(), found);
+                    std::cout << std::format("[{}]\n", hall->get_name());
+                    std::cout << found;
                     total += found.get_size();
                 }
             }
@@ -388,7 +389,8 @@ void SportComplex::search_coaches_menu() const {
                 std::cout << "No coaches in the complex.\n";
             }
             else {
-                std::cout << std::format("Largest group: {}\n", *best);
+                std::cout << "Largest group: ";
+                std::cout << *best << "\n";
             }
         }
         else {
@@ -459,8 +461,8 @@ void SportComplex::manage_sports_menu() {
         if (number == 0) return;
         Facility& facility = facility_at(number);
 
-        std::cout << std::format("\nSports of '{}' ({}):\n{}",
-            facility.get_name(), facility.get_sports().get_size(), facility.get_sports());
+        std::cout << std::format("\nSports of '{}' ({}):\n", facility.get_name(), facility.get_sports().get_size());
+        std::cout << facility.get_sports();
         std::cout << "1. Get sport by number\n2. Add sport\n3. Remove sport by number\n4. Check if sport is available\n5. Remove all sports (clear)\n";
         int choice = read_int("Choice: ", "sports choice");
 
@@ -542,14 +544,16 @@ void SportComplex::show_statistics() const {
 
     std::cout << std::format("\n=== STATISTICS ('{}') ===\n", complexName);
     std::cout << std::format("Facilities count (Collection<unique_ptr<Facility>>): {}\n", halls.get_size());
-    std::cout << "Facility names (Collection<string>):\n" << names;
+    std::cout << "Facility names (Collection<string>):\n";
+    std::cout << names;
     std::cout << std::format("Total max daily capacity (Collection<int>): {} people\n", totalDaily);
     std::cout << std::format("Gyms: {}, Swimming pools: {}, Stadiums: {}\n",
         count_matching(halls, [](const std::unique_ptr<Facility>& f) { return dynamic_cast<const Gym*>(f.get()) != nullptr; }),
         count_matching(halls, [](const std::unique_ptr<Facility>& f) { return dynamic_cast<const SwimmingPool*>(f.get()) != nullptr; }),
         count_matching(halls, [](const std::unique_ptr<Facility>& f) { return dynamic_cast<const Stadium*>(f.get()) != nullptr; }));
     std::cout << std::format("Largest facility by capacity: {}\n", (*biggest)->get_name());
-    std::cout << std::format("All coaches (Collection<Coach>), total {}:\n{}", allCoaches.get_size(), allCoaches);
+    std::cout << std::format("All coaches (Collection<Coach>), total {}:\n", allCoaches.get_size());
+    std::cout << allCoaches;
 }
 
 void SportComplex::show_specific_features(std::ostream& os) const {
