@@ -7,7 +7,7 @@
 #include "Stadium.h"
 #include "Collection.h"
 #include "Input.h"
-#include "SportComplexException.h"
+#include "exceptions/SportComplexException.h"
 
 int main() {
     SportComplex complex("Student Complex");

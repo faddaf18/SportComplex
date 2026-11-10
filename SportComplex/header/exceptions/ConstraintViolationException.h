@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "SportComplexException.h"
+#include "exceptions/SportComplexException.h"
 
 class ConstraintViolationException : public SportComplexException {
 private:

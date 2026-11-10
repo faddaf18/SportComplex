@@ -2,7 +2,7 @@
 #include <cstddef>
 #include <string>
 #include <format>
-#include "SportComplexException.h"
+#include "exceptions/SportComplexException.h"
 
 class IndexOutOfRangeException : public SportComplexException {
 private:

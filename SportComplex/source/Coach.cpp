@@ -1,6 +1,6 @@
 #include "Coach.h"
-#include "InvalidDataException.h"
-#include "ConstraintViolationException.h"
+#include "exceptions/InvalidDataException.h"
+#include "exceptions/ConstraintViolationException.h"
 #include <iostream>
 #include <format>
 
