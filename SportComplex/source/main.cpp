@@ -7,7 +7,13 @@
 #include "Stadium.h"
 #include "Collection.h"
 #include "Input.h"
+#include <format>
 #include "exceptions/SportComplexException.h"
+#include "exceptions/InvalidDataException.h"
+#include "exceptions/DuplicateIdException.h"
+#include "exceptions/ConstraintViolationException.h"
+#include "exceptions/BrokenRelationException.h"
+#include "exceptions/InvalidOperationException.h"
 
 int main() {
     SportComplex complex("Student Complex");
@@ -31,9 +37,17 @@ int main() {
         stadium->add_coach("Williams", "Football", 20);
         complex += std::move(stadium);
     }
-    catch (const SportComplexException& e) {
-        std::cout << "Initial data could not be loaded completely:\n";
-        complex.report_current_exception(e);
+    catch (const InvalidDataException& e) {
+        std::cout << std::format("[INVALID DATA] Initial data could not be loaded completely: {}\n", e.what());
+    }
+    catch (const DuplicateIdException& e) {
+        std::cout << std::format("[DUPLICATE] Initial data could not be loaded completely: {}\n", e.what());
+    }
+    catch (const ConstraintViolationException& e) {
+        std::cout << std::format("[LIMIT VIOLATED] Initial data could not be loaded completely: {}\n", e.what());
+    }
+    catch (const BrokenRelationException& e) {
+        std::cout << std::format("[BROKEN LINK] Initial data could not be loaded completely: {}\n", e.what());
     }
 
     int choice = -1;
@@ -65,8 +79,8 @@ int main() {
                 break;
             }
         }
-        catch (const SportComplexException& e) {
-            complex.report_current_exception(e);
+        catch (const InvalidDataException& e) {
+            std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
             if (std::cin.eof()) {
                 choice = 0;
             }
@@ -137,8 +151,11 @@ int main() {
                 std::cout << "Invalid menu option.\n";
             }
         }
+        catch (const InvalidOperationException& e) {
+            std::cout << std::format("[NOT ALLOWED] {}\n", e.what());
+        }
         catch (const SportComplexException& e) {
-            complex.report_current_exception(e);
+            std::cout << std::format("[ERROR] Unexpected program error: {}\n", e.what());
         }
     }
 

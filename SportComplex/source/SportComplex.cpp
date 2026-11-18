@@ -3,7 +3,6 @@
 #include "SwimmingPool.h"
 #include "Stadium.h"
 #include "Collection.h"
-#include "exceptions/SportComplexException.h"
 #include "exceptions/InvalidDataException.h"
 #include "exceptions/ObjectNotFoundException.h"
 #include "exceptions/DuplicateIdException.h"
@@ -48,44 +47,6 @@ void SportComplex::ensure_name_unique(std::string_view name) const {
         });
     if (same != nullptr) {
         throw DuplicateIdException("Facility", std::string(name), std::format("complex '{}'", complexName));
-    }
-}
-
-void SportComplex::report_current_exception(const std::exception& e) const {
-    if (const auto* ex1 = dynamic_cast<const InvalidDataException*>(&e)) {
-        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n",
-            ex1->what(), ex1->get_field());
-    }
-    else if (const auto* ex2 = dynamic_cast<const ObjectNotFoundException*>(&e)) {
-        std::cout << std::format("[NOT FOUND] {}\nCheck the spelling of '{}' (the name is case-sensitive).\n",
-            ex2->what(), ex2->get_key());
-    }
-    else if (const auto* ex3 = dynamic_cast<const DuplicateIdException*>(&e)) {
-        std::cout << std::format("[DUPLICATE] {}\nIdentifiers must be unique: choose a name other than '{}'.\n",
-            ex3->what(), ex3->get_id());
-    }
-    else if (const auto* ex4 = dynamic_cast<const ConstraintViolationException*>(&e)) {
-        std::cout << std::format("[LIMIT VIOLATED] {}\nViolated constraint: {}. Nothing was changed.\n",
-            ex4->what(), ex4->get_constraint());
-    }
-    else if (const auto* ex5 = dynamic_cast<const IndexOutOfRangeException*>(&e)) {
-        std::cout << std::format("[OUT OF RANGE] {}\n", ex5->what());
-        if (ex5->get_count() > 0) {
-            std::cout << std::format("Enter a number between 1 and {}.\n", ex5->get_count());
-        }
-    }
-    else if (const auto* ex6 = dynamic_cast<const BrokenRelationException*>(&e)) {
-        std::cout << std::format("[BROKEN LINK] {}\nThe operation was cancelled, existing data is intact.\n",
-            ex6->what());
-    }
-    else if (const auto* ex7 = dynamic_cast<const InvalidOperationException*>(&e)) {
-        std::cout << std::format("[NOT ALLOWED] {}\n", ex7->what());
-    }
-    else if (const auto* ex8 = dynamic_cast<const SportComplexException*>(&e)) {
-        std::cout << std::format("[ERROR] {}\n", ex8->what());
-    }
-    else {
-        std::cout << std::format("[UNEXPECTED ERROR] {}\n", e.what());
     }
 }
 
@@ -156,8 +117,17 @@ void SportComplex::create_and_add_facility() {
         *this += std::move(newFacility);
         std::cout << "Facility successfully added to complex!\n";
     }
-    catch (const SportComplexException& e) {
-        report_current_exception(e);
+    catch (const InvalidDataException& e) {
+        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+        std::cout << "Facility was not added.\n";
+    }
+    catch (const DuplicateIdException& e) {
+        std::cout << std::format("[DUPLICATE] {}\nIdentifiers must be unique: '{}' is already used by another {}. Choose a different one.\n",
+            e.what(), e.get_id(), e.get_object_type());
+        std::cout << "Facility was not added.\n";
+    }
+    catch (const ConstraintViolationException& e) {
+        std::cout << std::format("[LIMIT VIOLATED] {}\nViolated constraint: {}. Nothing was changed.\n", e.what(), e.get_constraint());
         std::cout << "Facility was not added.\n";
     }
 }
@@ -193,8 +163,24 @@ void SportComplex::edit_facility_menu() {
             throw InvalidDataException("edit choice", std::format("choose 1, 2 or 3 (got {})", editChoice));
         }
     }
-    catch (const SportComplexException& e) {
-        report_current_exception(e);
+    catch (const InvalidDataException& e) {
+        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+    }
+    catch (const IndexOutOfRangeException& e) {
+        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
+        if (e.get_count() > 0) {
+            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+        }
+    }
+    catch (const DuplicateIdException& e) {
+        std::cout << std::format("[DUPLICATE] {}\nIdentifiers must be unique: '{}' is already used by another {}. Choose a different one.\n",
+            e.what(), e.get_id(), e.get_object_type());
+    }
+    catch (const ConstraintViolationException& e) {
+        std::cout << std::format("[LIMIT VIOLATED] {}\nViolated constraint: {}. Nothing was changed.\n", e.what(), e.get_constraint());
+    }
+    catch (const BrokenRelationException& e) {
+        std::cout << std::format("[BROKEN LINK] {}\nThe operation was cancelled, existing data is intact.\n", e.what());
     }
 }
 
@@ -212,8 +198,24 @@ void SportComplex::add_coach_menu() {
 
         facility.add_coach(lastName, sport, maxGroup);
     }
-    catch (const SportComplexException& e) {
-        report_current_exception(e);
+    catch (const InvalidDataException& e) {
+        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+    }
+    catch (const IndexOutOfRangeException& e) {
+        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
+        if (e.get_count() > 0) {
+            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+        }
+    }
+    catch (const DuplicateIdException& e) {
+        std::cout << std::format("[DUPLICATE] {}\nIdentifiers must be unique: '{}' is already used by another {}. Choose a different one.\n",
+            e.what(), e.get_id(), e.get_object_type());
+    }
+    catch (const BrokenRelationException& e) {
+        std::cout << std::format("[BROKEN LINK] {}\nThe operation was cancelled, existing data is intact.\n", e.what());
+    }
+    catch (const ConstraintViolationException& e) {
+        std::cout << std::format("[LIMIT VIOLATED] {}\nViolated constraint: {}. Nothing was changed.\n", e.what(), e.get_constraint());
     }
 }
 
@@ -232,8 +234,20 @@ void SportComplex::enroll_to_coach_menu() {
 
         facility.enroll_to_coach(coachName, people);
     }
-    catch (const SportComplexException& e) {
-        report_current_exception(e);
+    catch (const InvalidDataException& e) {
+        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+    }
+    catch (const IndexOutOfRangeException& e) {
+        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
+        if (e.get_count() > 0) {
+            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+        }
+    }
+    catch (const ObjectNotFoundException& e) {
+        std::cout << std::format("[NOT FOUND] {}\nCheck the spelling of '{}' (the name is case-sensitive).\n", e.what(), e.get_key());
+    }
+    catch (const ConstraintViolationException& e) {
+        std::cout << std::format("[LIMIT VIOLATED] {}\nViolated constraint: {}. Nothing was changed.\n", e.what(), e.get_constraint());
     }
 }
 
@@ -245,8 +259,14 @@ void SportComplex::show_facility_by_index_menu() const {
         if (number == 0) return;
         std::cout << "\n" << facility_at(number);
     }
-    catch (const SportComplexException& e) {
-        report_current_exception(e);
+    catch (const InvalidDataException& e) {
+        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+    }
+    catch (const IndexOutOfRangeException& e) {
+        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
+        if (e.get_count() > 0) {
+            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+        }
     }
 }
 
@@ -260,8 +280,14 @@ void SportComplex::remove_facility_by_index_menu() {
         halls.remove(number - 1);
         std::cout << "Facility successfully removed!\n";
     }
-    catch (const SportComplexException& e) {
-        report_current_exception(e);
+    catch (const InvalidDataException& e) {
+        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+    }
+    catch (const IndexOutOfRangeException& e) {
+        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
+        if (e.get_count() > 0) {
+            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+        }
     }
 }
 
@@ -280,8 +306,11 @@ void SportComplex::clear_facilities_menu() {
             std::cout << "Cancelled.\n";
         }
     }
-    catch (const SportComplexException& e) {
-        report_current_exception(e);
+    catch (const InvalidDataException& e) {
+        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+    }
+    catch (const InvalidOperationException& e) {
+        std::cout << std::format("[NOT ALLOWED] {}\n", e.what());
     }
 }
 
@@ -340,8 +369,8 @@ void SportComplex::search_facilities_menu() const {
             halls.get(found.get(i))->print_short_info();
         }
     }
-    catch (const SportComplexException& e) {
-        report_current_exception(e);
+    catch (const InvalidDataException& e) {
+        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
     }
 }
 
@@ -397,8 +426,8 @@ void SportComplex::search_coaches_menu() const {
             throw InvalidDataException("search choice", std::format("choose 1-3 (got {})", choice));
         }
     }
-    catch (const SportComplexException& e) {
-        report_current_exception(e);
+    catch (const InvalidDataException& e) {
+        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
     }
 }
 
@@ -416,8 +445,14 @@ void SportComplex::show_coach_by_index_menu() const {
         std::size_t coachNumber = read_number("Enter coach number: ", "coach number");
         std::cout << facility.get_coach_at(coachNumber) << "\n";
     }
-    catch (const SportComplexException& e) {
-        report_current_exception(e);
+    catch (const InvalidDataException& e) {
+        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+    }
+    catch (const IndexOutOfRangeException& e) {
+        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
+        if (e.get_count() > 0) {
+            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+        }
     }
 }
 
@@ -448,8 +483,20 @@ void SportComplex::remove_coach_menu() {
             throw InvalidDataException("remove choice", std::format("choose 1-3 (got {})", choice));
         }
     }
-    catch (const SportComplexException& e) {
-        report_current_exception(e);
+    catch (const InvalidDataException& e) {
+        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+    }
+    catch (const IndexOutOfRangeException& e) {
+        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
+        if (e.get_count() > 0) {
+            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+        }
+    }
+    catch (const ObjectNotFoundException& e) {
+        std::cout << std::format("[NOT FOUND] {}\nCheck the spelling of '{}' (the name is case-sensitive).\n", e.what(), e.get_key());
+    }
+    catch (const InvalidOperationException& e) {
+        std::cout << std::format("[NOT ALLOWED] {}\n", e.what());
     }
 }
 
@@ -492,8 +539,27 @@ void SportComplex::manage_sports_menu() {
             throw InvalidDataException("sports choice", std::format("choose 1-5 (got {})", choice));
         }
     }
-    catch (const SportComplexException& e) {
-        report_current_exception(e);
+    catch (const InvalidDataException& e) {
+        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+    }
+    catch (const IndexOutOfRangeException& e) {
+        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
+        if (e.get_count() > 0) {
+            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+        }
+    }
+    catch (const DuplicateIdException& e) {
+        std::cout << std::format("[DUPLICATE] {}\nIdentifiers must be unique: '{}' is already used by another {}. Choose a different one.\n",
+            e.what(), e.get_id(), e.get_object_type());
+    }
+    catch (const ConstraintViolationException& e) {
+        std::cout << std::format("[LIMIT VIOLATED] {}\nViolated constraint: {}. Nothing was changed.\n", e.what(), e.get_constraint());
+    }
+    catch (const BrokenRelationException& e) {
+        std::cout << std::format("[BROKEN LINK] {}\nThe operation was cancelled, existing data is intact.\n", e.what());
+    }
+    catch (const InvalidOperationException& e) {
+        std::cout << std::format("[NOT ALLOWED] {}\n", e.what());
     }
 }
 

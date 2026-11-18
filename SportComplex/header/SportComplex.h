@@ -42,5 +42,4 @@ public:
     SportComplex& operator+=(std::unique_ptr<Facility> f);
     SportComplex& operator--();
 
-    void report_current_exception(const std::exception& e) const;
 };
