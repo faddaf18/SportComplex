@@ -25,6 +25,36 @@ static bool name_contains(const std::string_view& name, const std::string_view& 
 #endif
 }
 
+static void print_out_of_range_hint(const IndexOutOfRangeException& e, std::string_view prefix) {
+    std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
+    if (e.get_count() > 0) {
+        std::cout << std::format("{} Valid numbers: 1..{}.\n", prefix, e.get_count());
+    }
+}
+
+static Collection<Coach> collect_all_coaches(const Collection<std::unique_ptr<Facility>>& halls) {
+    Collection<Coach> all;
+    for (const auto& hall : halls) {
+        for (const auto& coach : hall->get_coaches()) {
+            all.add(coach);
+        }
+    }
+    return all;
+}
+
+static std::unique_ptr<Facility> create_facility_of_type(int typeChoice, const std::string& name, int capacity) {
+    if (typeChoice == 1) {
+        int equipCount = read_int("Enter equipment count: ", "equipment count");
+        return std::make_unique<Gym>(name, capacity, equipCount);
+    }
+    if (typeChoice == 2) {
+        int lanes = read_int("Enter lane count: ", "lane count");
+        return std::make_unique<SwimmingPool>(name, capacity, lanes);
+    }
+    int lightChoice = read_int("Has lighting? (1 - Yes, 0 - No): ", "lighting");
+    return std::make_unique<Stadium>(name, capacity, lightChoice != 0);
+}
+
 SportComplex::SportComplex(std::string_view name) : complexName(name) {}
 
 Facility& SportComplex::facility_at(std::size_t number) {
@@ -71,19 +101,6 @@ void SportComplex::show_all_full() const {
     for (const auto& hall : halls) {
         std::cout << *hall;
     }
-}
-
-static std::unique_ptr<Facility> create_facility_of_type(int typeChoice, const std::string& name, int capacity) {
-    if (typeChoice == 1) {
-        int equipCount = read_int("Enter equipment count: ", "equipment count");
-        return std::make_unique<Gym>(name, capacity, equipCount);
-    }
-    if (typeChoice == 2) {
-        int lanes = read_int("Enter lane count: ", "lane count");
-        return std::make_unique<SwimmingPool>(name, capacity, lanes);
-    }
-    int lightChoice = read_int("Has lighting? (1 - Yes, 0 - No): ", "lighting");
-    return std::make_unique<Stadium>(name, capacity, lightChoice != 0);
 }
 
 void SportComplex::create_and_add_facility() {
@@ -166,10 +183,7 @@ void SportComplex::edit_facility_menu() {
         std::cout << std::format("[INVALID DATA] {}\nThe facility stays as it was. Check '{}' and repeat the edit.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
-        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
-        if (e.get_count() > 0) {
-            std::cout << std::format("Pick the facility to edit from the list shown above. Valid numbers: 1..{}.\n", e.get_count());
-        }
+        print_out_of_range_hint(e, "Pick the facility to edit from the list shown above.");
     }
     catch (const DuplicateIdException& e) {
         std::cout << std::format("[DUPLICATE] {}\nThe complex already contains a {} named '{}': the new name must be unique.\n", e.what(), e.get_object_type(), e.get_id());
@@ -200,10 +214,7 @@ void SportComplex::add_coach_menu() {
         std::cout << std::format("[INVALID DATA] {}\nNo coach was added. Check '{}' and enter the coach data again.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
-        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
-        if (e.get_count() > 0) {
-            std::cout << std::format("Select the facility for the new coach from the list shown above. Valid numbers: 1..{}.\n", e.get_count());
-        }
+        print_out_of_range_hint(e, "Select the facility for the new coach from the list shown above.");
     }
     catch (const DuplicateIdException& e) {
         std::cout << std::format("[DUPLICATE] {}\nEvery coach of a facility needs a unique last name, and '{}' is taken.\n", e.what(), e.get_id());
@@ -235,10 +246,7 @@ void SportComplex::enroll_to_coach_menu() {
         std::cout << std::format("[INVALID DATA] {}\nNobody was enrolled. Check '{}' and try again.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
-        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
-        if (e.get_count() > 0) {
-            std::cout << std::format("Choose the facility from the list shown above. Valid numbers: 1..{}.\n", e.get_count());
-        }
+        print_out_of_range_hint(e, "Choose the facility from the list shown above.");
     }
     catch (const ObjectNotFoundException& e) {
         std::cout << std::format("[NOT FOUND] {}\nType the last name exactly as in the coaches list above; '{}' was not found.\n", e.what(), e.get_key());
@@ -260,10 +268,7 @@ void SportComplex::show_facility_by_index_menu() const {
         std::cout << std::format("[INVALID DATA] {}\nThe facility number must be a whole number, but '{}' is not valid.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
-        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
-        if (e.get_count() > 0) {
-            std::cout << std::format("The complex has no facility with that number. Valid numbers: 1..{}.\n", e.get_count());
-        }
+        print_out_of_range_hint(e, "The complex has no facility with that number.");
     }
 }
 
@@ -281,10 +286,7 @@ void SportComplex::remove_facility_by_index_menu() {
         std::cout << std::format("[INVALID DATA] {}\nNothing was removed. Enter a valid whole number for '{}'.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
-        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
-        if (e.get_count() > 0) {
-            std::cout << std::format("Nothing was removed: choose a number of an existing facility. Valid numbers: 1..{}.\n", e.get_count());
-        }
+        print_out_of_range_hint(e, "Nothing was removed: choose a number of an existing facility.");
     }
 }
 
@@ -404,12 +406,7 @@ void SportComplex::search_coaches_menu() const {
             std::cout << std::format("Total coaches found: {}\n", total);
         }
         else if (choice == 3) {
-            Collection<Coach> all;
-            for (const auto& hall : halls) {
-                for (const auto& coach : hall->get_coaches()) {
-                    all.add(coach);
-                }
-            }
+            Collection<Coach> all = collect_all_coaches(halls);
             const Coach* best = find_max_by(all, [](const Coach& c) { return c.get_current_group_size(); });
             if (best == nullptr) {
                 std::cout << "No coaches in the complex.\n";
@@ -446,10 +443,7 @@ void SportComplex::show_coach_by_index_menu() const {
         std::cout << std::format("[INVALID DATA] {}\nFacility and coach numbers must be whole numbers; '{}' is not valid.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
-        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
-        if (e.get_count() > 0) {
-            std::cout << std::format("Choose a facility or a coach from the lists shown above. Valid numbers: 1..{}.\n", e.get_count());
-        }
+        print_out_of_range_hint(e, "Choose a facility or a coach from the lists shown above.");
     }
 }
 
@@ -484,10 +478,7 @@ void SportComplex::remove_coach_menu() {
         std::cout << std::format("[INVALID DATA] {}\nNo coach was removed. Check the value of '{}' and try again.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
-        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
-        if (e.get_count() > 0) {
-            std::cout << std::format("Choose the facility or the coach number from the lists shown above. Valid numbers: 1..{}.\n", e.get_count());
-        }
+        print_out_of_range_hint(e, "Choose the facility or the coach number from the lists shown above.");
     }
     catch (const ObjectNotFoundException& e) {
         std::cout << std::format("[NOT FOUND] {}\nNo coach was removed because '{}' does not work in this facility.\n", e.what(), e.get_key());
@@ -540,10 +531,7 @@ void SportComplex::manage_sports_menu() {
         std::cout << std::format("[INVALID DATA] {}\nThe sports list was not changed. Check the value of '{}'.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
-        std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
-        if (e.get_count() > 0) {
-            std::cout << std::format("Choose the facility or the sport number from the lists shown above. Valid numbers: 1..{}.\n", e.get_count());
-        }
+        print_out_of_range_hint(e, "Choose the facility or the sport number from the lists shown above.");
     }
     catch (const DuplicateIdException& e) {
         std::cout << std::format("[DUPLICATE] {}\nThe sport '{}' is already on the list of this facility.\n", e.what(), e.get_id());
@@ -591,12 +579,7 @@ void SportComplex::show_statistics() const {
     Collection<int> daily = transform_collection(halls, [](const std::unique_ptr<Facility>& f) {
         return f->calculate_max_daily_capacity();
         });
-    Collection<Coach> allCoaches;
-    for (const auto& hall : halls) {
-        for (const auto& coach : hall->get_coaches()) {
-            allCoaches.add(coach);
-        }
-    }
+    Collection<Coach> allCoaches = collect_all_coaches(halls);
 
     int totalDaily = 0;
     for (int value : daily) totalDaily += value;
