@@ -118,16 +118,15 @@ void SportComplex::create_and_add_facility() {
         std::cout << "Facility successfully added to complex!\n";
     }
     catch (const InvalidDataException& e) {
-        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+        std::cout << std::format("[INVALID DATA] {}\nThe new facility was not created. Check the value of '{}' and enter the facility data again.\n", e.what(), e.get_field());
         std::cout << "Facility was not added.\n";
     }
     catch (const DuplicateIdException& e) {
-        std::cout << std::format("[DUPLICATE] {}\nIdentifiers must be unique: '{}' is already used by another {}. Choose a different one.\n",
-            e.what(), e.get_id(), e.get_object_type());
+        std::cout << std::format("[DUPLICATE] {}\nThe name '{}' is already taken by another {}, so the new facility needs a different one.\n", e.what(), e.get_id(), e.get_object_type());
         std::cout << "Facility was not added.\n";
     }
     catch (const ConstraintViolationException& e) {
-        std::cout << std::format("[LIMIT VIOLATED] {}\nViolated constraint: {}. Nothing was changed.\n", e.what(), e.get_constraint());
+        std::cout << std::format("[LIMIT VIOLATED] {}\nNothing was created because the limit '{}' would be exceeded.\n", e.what(), e.get_constraint());
         std::cout << "Facility was not added.\n";
     }
 }
@@ -164,23 +163,22 @@ void SportComplex::edit_facility_menu() {
         }
     }
     catch (const InvalidDataException& e) {
-        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+        std::cout << std::format("[INVALID DATA] {}\nThe facility stays as it was. Check '{}' and repeat the edit.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
         std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
         if (e.get_count() > 0) {
-            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+            std::cout << std::format("Pick the facility to edit from the list shown above. Valid numbers: 1..{}.\n", e.get_count());
         }
     }
     catch (const DuplicateIdException& e) {
-        std::cout << std::format("[DUPLICATE] {}\nIdentifiers must be unique: '{}' is already used by another {}. Choose a different one.\n",
-            e.what(), e.get_id(), e.get_object_type());
+        std::cout << std::format("[DUPLICATE] {}\nThe complex already contains a {} named '{}': the new name must be unique.\n", e.what(), e.get_object_type(), e.get_id());
     }
     catch (const ConstraintViolationException& e) {
-        std::cout << std::format("[LIMIT VIOLATED] {}\nViolated constraint: {}. Nothing was changed.\n", e.what(), e.get_constraint());
+        std::cout << std::format("[LIMIT VIOLATED] {}\nThe new capacity breaks the rule '{}', so the old value is kept.\n", e.what(), e.get_constraint());
     }
     catch (const BrokenRelationException& e) {
-        std::cout << std::format("[BROKEN LINK] {}\nThe operation was cancelled, existing data is intact.\n", e.what());
+        std::cout << std::format("[BROKEN LINK] {}\nThe sports list was not replaced because coaches still depend on the old one.\n", e.what());
     }
 }
 
@@ -199,23 +197,22 @@ void SportComplex::add_coach_menu() {
         facility.add_coach(lastName, sport, maxGroup);
     }
     catch (const InvalidDataException& e) {
-        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+        std::cout << std::format("[INVALID DATA] {}\nNo coach was added. Check '{}' and enter the coach data again.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
         std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
         if (e.get_count() > 0) {
-            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+            std::cout << std::format("Select the facility for the new coach from the list shown above. Valid numbers: 1..{}.\n", e.get_count());
         }
     }
     catch (const DuplicateIdException& e) {
-        std::cout << std::format("[DUPLICATE] {}\nIdentifiers must be unique: '{}' is already used by another {}. Choose a different one.\n",
-            e.what(), e.get_id(), e.get_object_type());
+        std::cout << std::format("[DUPLICATE] {}\nEvery coach of a facility needs a unique last name, and '{}' is taken.\n", e.what(), e.get_id());
     }
     catch (const BrokenRelationException& e) {
-        std::cout << std::format("[BROKEN LINK] {}\nThe operation was cancelled, existing data is intact.\n", e.what());
+        std::cout << std::format("[BROKEN LINK] {}\nAdd this sport to the facility first (menu item 17), then assign the coach.\n", e.what());
     }
     catch (const ConstraintViolationException& e) {
-        std::cout << std::format("[LIMIT VIOLATED] {}\nViolated constraint: {}. Nothing was changed.\n", e.what(), e.get_constraint());
+        std::cout << std::format("[LIMIT VIOLATED] {}\nChoose a smaller group for the coach (violated rule: {}).\n", e.what(), e.get_constraint());
     }
 }
 
@@ -235,19 +232,19 @@ void SportComplex::enroll_to_coach_menu() {
         facility.enroll_to_coach(coachName, people);
     }
     catch (const InvalidDataException& e) {
-        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+        std::cout << std::format("[INVALID DATA] {}\nNobody was enrolled. Check '{}' and try again.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
         std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
         if (e.get_count() > 0) {
-            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+            std::cout << std::format("Choose the facility from the list shown above. Valid numbers: 1..{}.\n", e.get_count());
         }
     }
     catch (const ObjectNotFoundException& e) {
-        std::cout << std::format("[NOT FOUND] {}\nCheck the spelling of '{}' (the name is case-sensitive).\n", e.what(), e.get_key());
+        std::cout << std::format("[NOT FOUND] {}\nType the last name exactly as in the coaches list above; '{}' was not found.\n", e.what(), e.get_key());
     }
     catch (const ConstraintViolationException& e) {
-        std::cout << std::format("[LIMIT VIOLATED] {}\nViolated constraint: {}. Nothing was changed.\n", e.what(), e.get_constraint());
+        std::cout << std::format("[LIMIT VIOLATED] {}\nThe group has no room for that many athletes (violated rule: {}).\n", e.what(), e.get_constraint());
     }
 }
 
@@ -260,12 +257,12 @@ void SportComplex::show_facility_by_index_menu() const {
         std::cout << "\n" << facility_at(number);
     }
     catch (const InvalidDataException& e) {
-        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+        std::cout << std::format("[INVALID DATA] {}\nThe facility number must be a whole number, but '{}' is not valid.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
         std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
         if (e.get_count() > 0) {
-            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+            std::cout << std::format("The complex has no facility with that number. Valid numbers: 1..{}.\n", e.get_count());
         }
     }
 }
@@ -281,12 +278,12 @@ void SportComplex::remove_facility_by_index_menu() {
         std::cout << "Facility successfully removed!\n";
     }
     catch (const InvalidDataException& e) {
-        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+        std::cout << std::format("[INVALID DATA] {}\nNothing was removed. Enter a valid whole number for '{}'.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
         std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
         if (e.get_count() > 0) {
-            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+            std::cout << std::format("Nothing was removed: choose a number of an existing facility. Valid numbers: 1..{}.\n", e.get_count());
         }
     }
 }
@@ -307,10 +304,10 @@ void SportComplex::clear_facilities_menu() {
         }
     }
     catch (const InvalidDataException& e) {
-        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+        std::cout << std::format("[INVALID DATA] {}\nAnswer the confirmation with 1 or 0 ('{}').\n", e.what(), e.get_field());
     }
     catch (const InvalidOperationException& e) {
-        std::cout << std::format("[NOT ALLOWED] {}\n", e.what());
+        std::cout << std::format("[NOT ALLOWED] {}\nAdd a facility first; an empty complex cannot be cleared.\n", e.what());
     }
 }
 
@@ -370,7 +367,7 @@ void SportComplex::search_facilities_menu() const {
         }
     }
     catch (const InvalidDataException& e) {
-        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+        std::cout << std::format("[INVALID DATA] {}\nThe facility search was not performed. Check '{}' and choose again.\n", e.what(), e.get_field());
     }
 }
 
@@ -427,7 +424,7 @@ void SportComplex::search_coaches_menu() const {
         }
     }
     catch (const InvalidDataException& e) {
-        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+        std::cout << std::format("[INVALID DATA] {}\nThe coach search was not performed. Check '{}' and choose again.\n", e.what(), e.get_field());
     }
 }
 
@@ -446,12 +443,12 @@ void SportComplex::show_coach_by_index_menu() const {
         std::cout << facility.get_coach_at(coachNumber) << "\n";
     }
     catch (const InvalidDataException& e) {
-        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+        std::cout << std::format("[INVALID DATA] {}\nFacility and coach numbers must be whole numbers; '{}' is not valid.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
         std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
         if (e.get_count() > 0) {
-            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+            std::cout << std::format("Choose a facility or a coach from the lists shown above. Valid numbers: 1..{}.\n", e.get_count());
         }
     }
 }
@@ -484,19 +481,19 @@ void SportComplex::remove_coach_menu() {
         }
     }
     catch (const InvalidDataException& e) {
-        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+        std::cout << std::format("[INVALID DATA] {}\nNo coach was removed. Check the value of '{}' and try again.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
         std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
         if (e.get_count() > 0) {
-            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+            std::cout << std::format("Choose the facility or the coach number from the lists shown above. Valid numbers: 1..{}.\n", e.get_count());
         }
     }
     catch (const ObjectNotFoundException& e) {
-        std::cout << std::format("[NOT FOUND] {}\nCheck the spelling of '{}' (the name is case-sensitive).\n", e.what(), e.get_key());
+        std::cout << std::format("[NOT FOUND] {}\nNo coach was removed because '{}' does not work in this facility.\n", e.what(), e.get_key());
     }
     catch (const InvalidOperationException& e) {
-        std::cout << std::format("[NOT ALLOWED] {}\n", e.what());
+        std::cout << std::format("[NOT ALLOWED] {}\nThere is nothing to clear: this facility has no coaches.\n", e.what());
     }
 }
 
@@ -540,26 +537,25 @@ void SportComplex::manage_sports_menu() {
         }
     }
     catch (const InvalidDataException& e) {
-        std::cout << std::format("[INVALID DATA] {}\nCheck the value of '{}' and try again.\n", e.what(), e.get_field());
+        std::cout << std::format("[INVALID DATA] {}\nThe sports list was not changed. Check the value of '{}'.\n", e.what(), e.get_field());
     }
     catch (const IndexOutOfRangeException& e) {
         std::cout << std::format("[OUT OF RANGE] {}\n", e.what());
         if (e.get_count() > 0) {
-            std::cout << std::format("Enter a number between 1 and {}.\n", e.get_count());
+            std::cout << std::format("Choose the facility or the sport number from the lists shown above. Valid numbers: 1..{}.\n", e.get_count());
         }
     }
     catch (const DuplicateIdException& e) {
-        std::cout << std::format("[DUPLICATE] {}\nIdentifiers must be unique: '{}' is already used by another {}. Choose a different one.\n",
-            e.what(), e.get_id(), e.get_object_type());
+        std::cout << std::format("[DUPLICATE] {}\nThe sport '{}' is already on the list of this facility.\n", e.what(), e.get_id());
     }
     catch (const ConstraintViolationException& e) {
-        std::cout << std::format("[LIMIT VIOLATED] {}\nViolated constraint: {}. Nothing was changed.\n", e.what(), e.get_constraint());
+        std::cout << std::format("[LIMIT VIOLATED] {}\nRemove a sport first: a facility can offer only a few (violated rule: {}).\n", e.what(), e.get_constraint());
     }
     catch (const BrokenRelationException& e) {
-        std::cout << std::format("[BROKEN LINK] {}\nThe operation was cancelled, existing data is intact.\n", e.what());
+        std::cout << std::format("[BROKEN LINK] {}\nA coach still works in this sport, so remove or reassign the coach first.\n", e.what());
     }
     catch (const InvalidOperationException& e) {
-        std::cout << std::format("[NOT ALLOWED] {}\n", e.what());
+        std::cout << std::format("[NOT ALLOWED] {}\nThis facility has no sports to remove.\n", e.what());
     }
 }
 
